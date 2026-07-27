@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ansarul Uloom Madrasa | Andona, Thamarassery, Kozhikkode - Meelad Fest</title>
+  <meta name="description" content="Ansarul Uloom Madrasa, Andona, Thamarassery, Kozhikkode - Meelad Fest Programs, Events, Student Database and Competition Results Portal.">
+  
+  <!-- Google Fonts: Outfit (Rounded Header), DM Sans (Clean Body), Amiri (Arabic) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300..800;1,9..40,300..800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Tailwind CSS CDN with Custom Theme Config -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            organic: {
+              bg: '#06140E',
+              bgLight: '#0C2219',
+              cardGreen: '#12382A',
+              cardGreenHover: '#184937',
+              cardBrown: '#3D241B',
+              cardBrownHover: '#4F3024',
+              cardSand: '#DDB892',
+              cardSandHover: '#E6CCB2',
+              accentSand: '#E8D5B7',
+              pillGold: '#E6C594',
+              pillGoldHover: '#F0D4A8',
+              emeraldText: '#A3E635',
+              creamText: '#F7EDE2',
+              darkText: '#221510',
+              muted: '#8FB9A8'
+            }
+          },
+          fontFamily: {
+            sans: ['DM Sans', 'sans-serif'],
+            title: ['Outfit', 'sans-serif'],
+            arabic: ['Amiri', 'serif']
+          },
+          borderRadius: {
+            '4xl': '2rem',
+            '5xl': '2.5rem'
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="src/css/main.css">
+</head>
+<body class="bg-organic-bg text-organic-creamText font-sans antialiased min-h-screen selection:bg-amber-400 selection:text-organic-darkText relative overflow-x-hidden">
+
+  <!-- Ambient Leaf Background Canvas -->
+  <canvas id="ambient-canvas" class="fixed inset-0 pointer-events-none z-0 opacity-60"></canvas>
+
+  <!-- Main Container -->
+  <div id="app" class="relative z-10 flex flex-col min-h-screen">
+    <!-- Navbar Component Container -->
+    <header id="navbar-container" class="sticky top-0 z-50 transition-all duration-300"></header>
+
+    <!-- Main Content Area -->
+    <main id="main-content" class="flex-grow">
+      <!-- Dynamic Sections rendered via JS -->
+    </main>
+
+    <!-- Footer Component Container -->
+    <footer id="footer-container" class="bg-[#040C0A] border-t border-emerald-900/40 backdrop-blur-md"></footer>
+  </div>
+
+  <!-- Global Modal Layer -->
+  <div id="modal-container" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#040C0A]/85 backdrop-blur-md hidden transition-opacity duration-300 opacity-0 pointer-events-none">
+    <div id="modal-content" class="bg-organic-cardGreen border border-emerald-700/50 rounded-4xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95 text-organic-creamText">
+      <!-- Dynamic Modal Content rendered via JS -->
+    </div>
+  </div>
+
+  <!-- Toast Notification System Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+  <!-- JS Modules -->
+  <script src="src/js/db.js"></script>
+  <script src="src/js/canvas-bg.js"></script>
+  <script src="src/js/components/navbar.js"></script>
+  <script src="src/js/components/hero.js"></script>
+  <script src="src/js/components/programs.js"></script>
+  <script src="src/js/components/events.js"></script>
+  <script src="src/js/components/student-db.js"></script>
+  <script src="src/js/components/results.js"></script>
+  <script src="src/js/components/footer.js"></script>
+  <script src="src/js/app.js"></script>
+</body>
+</html>
