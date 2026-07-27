@@ -1,27 +1,32 @@
 /**
  * Madrasa Database Engine - Ansarul Uloom Madrasa, Andona, Thamarassery, Kozhikkode
+ * Includes 3 Meelad Fest Competition Teams: Quaf (ق), Noon (ن), Meem (م)
  */
 const MadrasaDB = (function() {
   const STORAGE_KEYS = {
-    STUDENTS: 'ansarul_uloom_db_students_v2',
-    PROGRAMS: 'ansarul_uloom_db_programs_v2',
-    EVENTS: 'ansarul_uloom_db_events_v2',
-    RESULTS: 'ansarul_uloom_db_results_v2',
-    SETTINGS: 'ansarul_uloom_db_settings_v2'
+    STUDENTS: 'ansarul_uloom_db_students_v3',
+    PROGRAMS: 'ansarul_uloom_db_programs_v3',
+    EVENTS: 'ansarul_uloom_db_events_v3',
+    RESULTS: 'ansarul_uloom_db_results_v3',
+    SETTINGS: 'ansarul_uloom_db_settings_v3'
   };
 
-  // Specific Madrasa Settings
   const DEFAULT_SETTINGS = {
     madrasaName: "Ansarul Uloom Madrasa",
     location: "Andona, Thamarassery, Kozhikkode",
-    tagline: "Meelad Fest Programs & Academic Competitions Portal",
+    tagline: "Meelad Fest Programs, Team Leaderboard & Results Portal",
     established: "Andona, Thamarassery",
     address: "Andona, Thamarassery, Kozhikkode District, Kerala",
     contactEmail: "info@ansarululoom-andona.edu",
     contactPhone: "+91 98470 12345"
   };
 
-  // Meelad Programs Categorized by Category
+  const TEAMS = [
+    { id: "QUAF", name: "Quaf", arabic: "ق", color: "emerald", description: "Team Quaf (ق)" },
+    { id: "NOON", name: "Noon", arabic: "ن", color: "cyan", description: "Team Noon (ن)" },
+    { id: "MEEM", name: "Meem", arabic: "م", color: "amber", description: "Team Meem (م)" }
+  ];
+
   const DEFAULT_PROGRAMS = [
     {
       id: "PRG-KIDS",
@@ -230,7 +235,7 @@ const MadrasaDB = (function() {
   const DEFAULT_EVENTS = [
     {
       id: "EVT-2026-MEELAD-01",
-      title: "Ansarul Uloom Meelad Fest 2026 Grand Stage Competitions",
+      title: "Ansarul Uloom Meelad Fest Grand Stage Competitions",
       date: "2026-08-25",
       time: "08:00 AM - 10:00 PM",
       category: "Meelad Stage",
@@ -238,31 +243,31 @@ const MadrasaDB = (function() {
       rsvpCount: 520,
       badge: "Meelad Fest",
       imageIcon: "fa-star-and-crescent",
-      description: "Grand Meelad competitions featuring Kids, Sub Junior, Junior, Senior, and General group performances."
+      description: "Grand Meelad competitions featuring Team Quaf, Team Noon, and Team Meelad in Kids, Sub Junior, Junior, Senior, and General divisions."
     },
     {
       id: "EVT-2026-MEELAD-02",
-      title: "General Group Recitation Finals (Qawali, Burda & Nasheed)",
+      title: "Team Championship Finals (Qawali, Burda & Nasheed)",
       date: "2026-08-25",
       time: "07:30 PM - 09:30 PM",
       category: "Group Stage",
       location: "Main Auditorium, Andona, Thamarassery",
       rsvpCount: 680,
-      badge: "Flagship Night",
-      imageIcon: "fa-music",
-      description: "High-octane group finals for Qawali, Burda Majeed, Arabic Nasheed, and Maalappattu."
+      badge: "Team Battle",
+      imageIcon: "fa-shield-halved",
+      description: "High-voltage group finals between Quaf, Noon, and Meem teams for Qawali, Burda Majeed, Arabic Nasheed, and Maalappattu."
     },
     {
       id: "EVT-2026-MEELAD-03",
-      title: "Meelad Award Ceremony & Sanad Distribution",
+      title: "Meelad Overall Championship Trophy & Prize Distribution",
       date: "2026-08-26",
       time: "04:30 PM - 08:30 PM",
       category: "Ceremony",
       location: "Grand Stage, Andona, Thamarassery",
       rsvpCount: 850,
-      badge: "Prize Distribution",
+      badge: "Championship",
       imageIcon: "fa-trophy",
-      description: "Prize distribution and trophiess for top points winners across Kids, Sub-Junior, Junior, Senior, and General divisions."
+      description: "Awarding the Meelad Overall Championship Trophy to the winning team (Quaf, Noon, or Meem) and individual top scorers."
     }
   ];
 
@@ -270,6 +275,7 @@ const MadrasaDB = (function() {
     {
       id: "ANS-2026-001",
       name: "Muhammed Sinan",
+      team: "Quaf",
       age: 15,
       gender: "Male",
       guardian: "Abdurahiman Andona",
@@ -282,6 +288,7 @@ const MadrasaDB = (function() {
     {
       id: "ANS-2026-002",
       name: "Fathima Rifa",
+      team: "Noon",
       age: 14,
       gender: "Female",
       guardian: "Musthafa Thamarassery",
@@ -294,6 +301,7 @@ const MadrasaDB = (function() {
     {
       id: "ANS-2026-003",
       name: "Muhammed Ameen",
+      team: "Meem",
       age: 11,
       gender: "Male",
       guardian: "Moideen Andona",
@@ -306,6 +314,7 @@ const MadrasaDB = (function() {
     {
       id: "ANS-2026-004",
       name: "Aisha Mehreen",
+      team: "Quaf",
       age: 10,
       gender: "Female",
       guardian: "Usman Kozhikkode",
@@ -318,6 +327,7 @@ const MadrasaDB = (function() {
     {
       id: "ANS-2026-005",
       name: "Muhammed Yaseen",
+      team: "Noon",
       age: 8,
       gender: "Male",
       guardian: "Hamza Andona",
@@ -330,6 +340,7 @@ const MadrasaDB = (function() {
     {
       id: "ANS-2026-006",
       name: "Mariyam Zoya",
+      team: "Meem",
       age: 6,
       gender: "Female",
       guardian: "Zakariya Thamarassery",
@@ -355,7 +366,8 @@ const MadrasaDB = (function() {
       ],
       totalPercentage: 95.2,
       grade: "1st Rank (A+)",
-      remarks: "Outstanding voice control in Madh Gaanam and eloquent Malayalam elocution."
+      pointsAwarded: 40,
+      remarks: "1st Prize in Madh Gaanam & Prasangam. Scored 40 Championship Points for Team Quaf!"
     },
     {
       id: "RES-MEELAD-02",
@@ -370,10 +382,26 @@ const MadrasaDB = (function() {
       ],
       totalPercentage: 94.7,
       grade: "1st Rank (A+)",
-      remarks: "First prize in Arabic Calligraphy and exceptional E-Poster creative design."
+      pointsAwarded: 37,
+      remarks: "1st Prize in Calligraphy & E-Poster. Scored 37 Championship Points for Team Noon!"
     },
     {
       id: "RES-MEELAD-03",
+      studentId: "ANS-2026-003",
+      programId: "PRG-JUNIOR-B",
+      term: "Meelad Fest 2026",
+      marks: [
+        { subject: "MADH GAANAM", score: 94, max: 100 },
+        { subject: "MAPPILAPPATTU", score: 92, max: 100 },
+        { subject: "CALLIGRAPHY", score: 90, max: 100 }
+      ],
+      totalPercentage: 92.0,
+      grade: "2nd Rank (A+)",
+      pointsAwarded: 32,
+      remarks: "2nd Prize in Junior Madh Gaanam. Scored 32 Championship Points for Team Meem!"
+    },
+    {
+      id: "RES-MEELAD-04",
       studentId: "ANS-2026-005",
       programId: "PRG-SUBJR-B",
       term: "Meelad Fest 2026",
@@ -384,8 +412,9 @@ const MadrasaDB = (function() {
         { subject: "ARABIC BAITH", score: 88, max: 100 }
       ],
       totalPercentage: 91.0,
-      grade: "A+",
-      remarks: "Excellent Tajweed accuracy in Khira'ath and clear vocal projection."
+      grade: "1st Rank (A+)",
+      pointsAwarded: 35,
+      remarks: "1st Prize in Sub-Junior Hif'l. Scored 35 Championship Points for Team Noon!"
     }
   ];
 
@@ -428,6 +457,9 @@ const MadrasaDB = (function() {
   init();
 
   return {
+    getTeams() {
+      return TEAMS;
+    },
     getSettings() {
       return getStorage(STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS);
     },
@@ -492,6 +524,8 @@ const MadrasaDB = (function() {
     },
     saveStudent(student) {
       const students = this.getStudents();
+      student.team = student.team || "Quaf"; // default team
+
       if (student.id) {
         const idx = students.findIndex(s => s.id === student.id);
         if (idx >= 0) {
@@ -562,11 +596,22 @@ const MadrasaDB = (function() {
         const pct = totalMax > 0 ? (totalObtained / totalMax) * 100 : 0;
         resultData.totalPercentage = parseFloat(pct.toFixed(1));
         
-        if (pct >= 95) resultData.grade = "1st Rank (A+)";
-        else if (pct >= 90) resultData.grade = "2nd Rank (A+)";
-        else if (pct >= 85) resultData.grade = "3rd Rank (A)";
-        else if (pct >= 75) resultData.grade = "Grade B+";
-        else resultData.grade = "Participated";
+        if (pct >= 95) {
+          resultData.grade = "1st Rank (A+)";
+          resultData.pointsAwarded = 40;
+        } else if (pct >= 90) {
+          resultData.grade = "2nd Rank (A+)";
+          resultData.pointsAwarded = 32;
+        } else if (pct >= 85) {
+          resultData.grade = "3rd Rank (A)";
+          resultData.pointsAwarded = 25;
+        } else if (pct >= 75) {
+          resultData.grade = "Grade B+";
+          resultData.pointsAwarded = 15;
+        } else {
+          resultData.grade = "Participated";
+          resultData.pointsAwarded = 5;
+        }
       }
 
       if (resultData.id) {
@@ -580,6 +625,35 @@ const MadrasaDB = (function() {
 
       setStorage(STORAGE_KEYS.RESULTS, results);
       return resultData;
+    },
+
+    // Calculate Team Leaderboard Scores
+    getTeamStandings() {
+      const students = this.getStudents();
+      const results = this.getResults();
+
+      const teamsData = [
+        { name: "Quaf", arabic: "ق", color: "emerald", points: 0, firstPrizes: 0, totalStudents: 0 },
+        { name: "Noon", arabic: "ن", color: "cyan", points: 0, firstPrizes: 0, totalStudents: 0 },
+        { name: "Meem", arabic: "م", color: "amber", points: 0, firstPrizes: 0, totalStudents: 0 }
+      ];
+
+      students.forEach(s => {
+        const teamObj = teamsData.find(t => t.name.toLowerCase() === (s.team || 'quaf').toLowerCase());
+        if (teamObj) {
+          teamObj.totalStudents += 1;
+          const sResults = results.filter(r => r.studentId === s.id);
+          sResults.forEach(r => {
+            teamObj.points += (r.pointsAwarded || 0);
+            if (r.grade && r.grade.includes("1st")) {
+              teamObj.firstPrizes += 1;
+            }
+          });
+        }
+      });
+
+      // Sort teams by points descending
+      return teamsData.sort((a, b) => b.points - a.points);
     },
 
     resetToDefault() {

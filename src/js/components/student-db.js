@@ -1,16 +1,16 @@
 /**
- * Student Database Management System Component
+ * Student Database Management Component with Team Filter (Quaf, Noon, Meem)
  */
 const StudentDBComponent = (function() {
   let searchQuery = '';
   let selectedProgramFilter = 'All';
   let selectedStatusFilter = 'All';
+  let selectedTeamFilter = 'All';
 
   function render(onAddStudent, onEditStudent, onAssignPrograms, onLogMarks, onDeleteStudent) {
     const students = MadrasaDB.getStudents();
     const programs = MadrasaDB.getPrograms();
 
-    // Filtering logic
     const filteredStudents = students.filter(student => {
       const matchQuery = !searchQuery || 
         student.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -21,8 +21,9 @@ const StudentDBComponent = (function() {
         (student.assignedPrograms && student.assignedPrograms.includes(selectedProgramFilter));
 
       const matchStatus = selectedStatusFilter === 'All' || student.status === selectedStatusFilter;
+      const matchTeam = selectedTeamFilter === 'All' || (student.team || 'Quaf') === selectedTeamFilter;
 
-      return matchQuery && matchProgram && matchStatus;
+      return matchQuery && matchProgram && matchStatus && matchTeam;
     });
 
     return `
@@ -32,15 +33,15 @@ const StudentDBComponent = (function() {
           <!-- Section Header -->
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
             <div>
-              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-semibold mb-2">
-                <i class="fa-solid fa-database text-cyan-400"></i>
-                <span>Administrative Database Engine</span>
+              <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-emerald-900/40 border border-emerald-700/50 text-organic-pillGold text-xs font-bold mb-2">
+                <i class="fa-solid fa-users text-amber-400"></i>
+                <span>Team Database & Student Roster</span>
               </div>
-              <h2 class="text-3xl font-title font-extrabold text-white">
-                Student Records & Program Assignments
+              <h2 class="text-3xl font-title font-extrabold text-organic-creamText">
+                Student Records & Team Management
               </h2>
-              <p class="mt-1 text-slate-400 text-sm max-w-xl">
-                Manage student enrollment profiles, assign academic programs, record exam performance, and track attendance.
+              <p class="mt-1 text-organic-muted text-sm max-w-xl">
+                Assign students to Team Quaf (ق), Team Noon (ن), or Team Meem (م), record scores, and track team standings.
               </p>
             </div>
 
@@ -48,25 +49,25 @@ const StudentDBComponent = (function() {
             <div class="flex flex-wrap items-center gap-3">
               <button 
                 id="db-add-student-btn"
-                class="px-5 py-2.5 rounded-xl text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 border border-amber-300 shadow-lg shadow-amber-500/20 transition-all flex items-center gap-2"
+                class="btn-pill-gold px-5 py-3 text-xs font-bold flex items-center gap-2 shadow-lg"
               >
-                <i class="fa-solid fa-user-plus text-slate-950"></i>
-                <span>Add New Student</span>
+                <i class="fa-solid fa-user-plus text-organic-darkText"></i>
+                <span>Register Student to Team</span>
               </button>
 
               <button 
                 id="db-export-btn"
-                class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-900 border border-slate-700 hover:bg-slate-800 transition-colors flex items-center gap-2"
+                class="px-4 py-3 rounded-full text-xs font-bold text-organic-creamText bg-emerald-900/40 border border-emerald-700/50 hover:bg-emerald-900/70 transition-colors flex items-center gap-2"
                 title="Export Database JSON"
               >
-                <i class="fa-solid fa-download text-amber-400"></i>
+                <i class="fa-solid fa-download text-organic-pillGold"></i>
                 <span>Export DB</span>
               </button>
 
               <button 
                 id="db-reset-btn"
-                class="px-3.5 py-2.5 rounded-xl text-xs font-semibold text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/60 transition-colors"
-                title="Reset Database to Seed Data"
+                class="px-4 py-3 rounded-full text-xs font-bold text-rose-300 bg-rose-950/60 hover:bg-rose-900/80 border border-rose-800/60 transition-colors"
+                title="Reset Database to Default Seed Data"
               >
                 <i class="fa-solid fa-rotate-left"></i>
               </button>
@@ -74,26 +75,37 @@ const StudentDBComponent = (function() {
           </div>
 
           <!-- Controls & Filters Bar -->
-          <div class="glass-panel p-4 rounded-2xl mb-6 flex flex-col md:flex-row items-center justify-between gap-4 border-slate-800">
+          <div class="card-green p-5 rounded-3xl mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <!-- Search Bar -->
             <div class="relative w-full md:w-80">
-              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+              <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-organic-muted text-xs"></i>
               <input 
                 type="text" 
                 id="db-search-input"
-                placeholder="Search by Name, Student ID, Guardian..." 
+                placeholder="Search Name, Student ID, Guardian..." 
                 value="${NavbarComponent.escapeHTML(searchQuery)}"
-                class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
+                class="w-full pl-10 pr-4 py-3 rounded-full bg-emerald-950/90 border border-emerald-700/50 text-xs text-organic-creamText placeholder-organic-muted focus:outline-none focus:border-amber-400"
               >
             </div>
 
             <!-- Filters -->
             <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+              <!-- Team Filter -->
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-organic-muted font-bold">Team:</span>
+                <select id="db-team-filter" class="bg-emerald-950/90 border border-emerald-700/50 text-xs text-organic-pillGold font-bold rounded-full px-4 py-2.5 focus:outline-none">
+                  <option value="All">All Teams (Quaf, Noon, Meem)</option>
+                  <option value="Quaf" ${selectedTeamFilter === 'Quaf' ? 'selected' : ''}>Team Quaf (ق)</option>
+                  <option value="Noon" ${selectedTeamFilter === 'Noon' ? 'selected' : ''}>Team Noon (ن)</option>
+                  <option value="Meem" ${selectedTeamFilter === 'Meem' ? 'selected' : ''}>Team Meem (م)</option>
+                </select>
+              </div>
+
               <!-- Program Filter -->
               <div class="flex items-center gap-2">
-                <span class="text-xs text-slate-400 font-medium">Program:</span>
-                <select id="db-program-filter" class="bg-slate-950/80 border border-slate-800 text-xs text-amber-300 rounded-xl px-3 py-2 focus:outline-none focus:border-amber-500">
-                  <option value="All">All Programs (${programs.length})</option>
+                <span class="text-xs text-organic-muted font-bold">Program:</span>
+                <select id="db-program-filter" class="bg-emerald-950/90 border border-emerald-700/50 text-xs text-emerald-300 font-bold rounded-full px-4 py-2.5 focus:outline-none">
+                  <option value="All">All Categories (${programs.length})</option>
                   ${programs.map(p => `
                     <option value="${p.id}" ${selectedProgramFilter === p.id ? 'selected' : ''}>${p.name}</option>
                   `).join('')}
@@ -102,131 +114,129 @@ const StudentDBComponent = (function() {
 
               <!-- Status Filter -->
               <div class="flex items-center gap-2">
-                <span class="text-xs text-slate-400 font-medium">Status:</span>
-                <select id="db-status-filter" class="bg-slate-950/80 border border-slate-800 text-xs text-emerald-400 rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500">
+                <span class="text-xs text-organic-muted font-bold">Status:</span>
+                <select id="db-status-filter" class="bg-emerald-950/90 border border-emerald-700/50 text-xs text-organic-creamText rounded-full px-4 py-2.5 focus:outline-none">
                   <option value="All">All Statuses</option>
                   <option value="Active" ${selectedStatusFilter === 'Active' ? 'selected' : ''}>Active</option>
                   <option value="Graduated" ${selectedStatusFilter === 'Graduated' ? 'selected' : ''}>Graduated</option>
-                  <option value="Pending" ${selectedStatusFilter === 'Pending' ? 'selected' : ''}>Pending</option>
                 </select>
               </div>
             </div>
           </div>
 
           <!-- Student Data Table -->
-          <div class="glass-panel rounded-2xl overflow-hidden border-slate-800 shadow-xl">
+          <div class="card-green rounded-3xl overflow-hidden shadow-2xl">
             <div class="overflow-x-auto">
               <table class="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr class="bg-slate-950/90 text-slate-400 border-b border-slate-800 uppercase tracking-wider font-semibold">
-                    <th class="py-4 px-4">Student ID & Name</th>
-                    <th class="py-4 px-4">Guardian & Contact</th>
-                    <th class="py-4 px-4">Assigned Programs</th>
-                    <th class="py-4 px-4">Status</th>
-                    <th class="py-4 px-4 text-right">Actions</th>
+                  <tr class="bg-emerald-950/90 text-organic-muted border-b border-emerald-800/80 uppercase tracking-wider font-bold">
+                    <th class="py-4 px-5">Student ID & Name</th>
+                    <th class="py-4 px-5">Meelad Team</th>
+                    <th class="py-4 px-5">Guardian & Contact</th>
+                    <th class="py-4 px-5">Assigned Categories</th>
+                    <th class="py-4 px-5 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-800/80">
+                <tbody class="divide-y divide-emerald-900/60">
                   ${filteredStudents.length === 0 ? `
                     <tr>
-                      <td colspan="5" class="py-12 text-center text-slate-500">
-                        <i class="fa-solid fa-folder-open text-3xl mb-2 block text-slate-600"></i>
-                        <span>No student records found matching your filters.</span>
+                      <td colspan="5" class="py-12 text-center text-organic-muted">
+                        <i class="fa-solid fa-folder-open text-3xl mb-2 block text-emerald-600"></i>
+                        <span>No student records found matching your team and program filters.</span>
                       </td>
                     </tr>
                   ` : filteredStudents.map(student => {
                     const assignedProgs = (student.assignedPrograms || []).map(pid => MadrasaDB.getProgramById(pid)).filter(Boolean);
+                    const teamName = student.team || 'Quaf';
+                    const isQuaf = teamName === 'Quaf';
+                    const isNoon = teamName === 'Noon';
 
                     return `
-                      <tr class="hover:bg-slate-800/40 transition-colors group">
+                      <tr class="hover:bg-emerald-900/40 transition-colors group">
                         <!-- ID & Name -->
-                        <td class="py-4 px-4">
+                        <td class="py-4 px-5">
                           <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold font-title">
+                            <div class="w-10 h-10 rounded-full bg-emerald-950 border border-emerald-600/50 flex items-center justify-center text-organic-pillGold font-bold">
                               ${student.gender === 'Female' ? '<i class="fa-solid fa-user-graduate"></i>' : '<i class="fa-solid fa-user-ninja"></i>'}
                             </div>
                             <div>
-                              <div class="font-bold text-white text-sm group-hover:text-amber-300 transition-colors flex items-center gap-2">
+                              <div class="font-bold text-white text-sm group-hover:text-organic-pillGold transition-colors flex items-center gap-2">
                                 <span>${NavbarComponent.escapeHTML(student.name)}</span>
-                                <span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 font-normal">${student.age} yrs</span>
+                                <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950 text-organic-muted font-normal">${student.age} yrs</span>
                               </div>
-                              <div class="text-[11px] font-mono text-amber-400 font-semibold mt-0.5">
+                              <div class="text-[11px] font-mono text-organic-pillGold font-semibold mt-0.5">
                                 ${student.id}
                               </div>
                             </div>
                           </div>
                         </td>
 
+                        <!-- Team Badge -->
+                        <td class="py-4 px-5">
+                          <span class="px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1.5 ${
+                            isQuaf ? 'bg-emerald-900/80 text-emerald-200 border border-emerald-600/60' :
+                            isNoon ? 'bg-cyan-950 text-cyan-300 border border-cyan-700/60' :
+                            'bg-amber-950 text-amber-300 border border-amber-700/60'
+                          }">
+                            <span class="font-arabic text-sm">${isQuaf ? 'ق' : isNoon ? 'ن' : 'م'}</span>
+                            <span>Team ${teamName}</span>
+                          </span>
+                        </td>
+
                         <!-- Guardian & Contact -->
-                        <td class="py-4 px-4">
-                          <div class="text-slate-200 font-medium">${NavbarComponent.escapeHTML(student.guardian || 'N/A')}</div>
-                          <div class="text-slate-400 text-[11px] flex items-center gap-2 mt-0.5">
-                            <span><i class="fa-solid fa-envelope text-slate-500"></i> ${student.email || '-'}</span>
-                            <span><i class="fa-solid fa-phone text-slate-500"></i> ${student.phone || '-'}</span>
+                        <td class="py-4 px-5">
+                          <div class="text-organic-creamText font-semibold">${NavbarComponent.escapeHTML(student.guardian || 'N/A')}</div>
+                          <div class="text-organic-muted text-[11px] flex items-center gap-2 mt-0.5">
+                            <span><i class="fa-solid fa-phone text-emerald-400"></i> ${student.phone || '-'}</span>
                           </div>
                         </td>
 
                         <!-- Assigned Programs -->
-                        <td class="py-4 px-4">
+                        <td class="py-4 px-5">
                           <div class="flex flex-wrap items-center gap-1.5">
                             ${assignedProgs.length === 0 ? `
-                              <span class="text-slate-500 italic text-[11px]">Unassigned</span>
+                              <span class="text-organic-muted italic text-[11px]">Unassigned</span>
                             ` : assignedProgs.map(p => `
-                              <span class="px-2 py-0.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[11px] font-medium" title="${p.name}">
-                                ${p.name.split(' ')[0]} ${p.name.split(' ')[1] || ''}
+                              <span class="px-2.5 py-1 rounded-lg bg-emerald-950 border border-emerald-700/50 text-emerald-200 text-[11px] font-medium" title="${p.name}">
+                                ${p.category}
                               </span>
                             `).join('')}
                           </div>
                         </td>
 
-                        <!-- Status -->
-                        <td class="py-4 px-4">
-                          <span class="px-2.5 py-1 rounded-full text-[11px] font-bold ${
-                            student.status === 'Active' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
-                            student.status === 'Graduated' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' :
-                            'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                          }">
-                            ${student.status}
-                          </span>
-                        </td>
-
                         <!-- Actions -->
-                        <td class="py-4 px-4 text-right">
+                        <td class="py-4 px-5 text-right">
                           <div class="flex items-center justify-end gap-1.5">
-                            <!-- Assign Program -->
                             <button 
                               data-assign-id="${student.id}"
-                              class="db-action-assign p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 transition-colors" 
+                              class="db-action-assign p-2.5 rounded-full bg-emerald-950 hover:bg-emerald-900 text-organic-pillGold transition-colors" 
                               title="Assign Programs"
                             >
-                              <i class="fa-solid fa-book-bookmark"></i>
+                              <i class="fa-solid fa-book-bookmark text-xs"></i>
                             </button>
 
-                            <!-- Log Exam Marks -->
                             <button 
                               data-marks-id="${student.id}"
-                              class="db-action-marks p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 transition-colors" 
+                              class="db-action-marks p-2.5 rounded-full bg-emerald-950 hover:bg-emerald-900 text-emerald-300 transition-colors" 
                               title="Input Exam Marks"
                             >
-                              <i class="fa-solid fa-pen-nib"></i>
+                              <i class="fa-solid fa-pen-nib text-xs"></i>
                             </button>
 
-                            <!-- Edit Student -->
                             <button 
                               data-edit-id="${student.id}"
-                              class="db-action-edit p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-400 transition-colors" 
-                              title="Edit Student Info"
+                              class="db-action-edit p-2.5 rounded-full bg-emerald-950 hover:bg-emerald-900 text-cyan-300 transition-colors" 
+                              title="Edit Profile & Team"
                             >
-                              <i class="fa-solid fa-user-pen"></i>
+                              <i class="fa-solid fa-user-pen text-xs"></i>
                             </button>
 
-                            <!-- Delete Student -->
                             <button 
                               data-delete-id="${student.id}"
-                              class="db-action-delete p-2 rounded-lg bg-slate-800 hover:bg-rose-900/60 text-rose-400 transition-colors" 
+                              class="db-action-delete p-2.5 rounded-full bg-emerald-950 hover:bg-rose-900/60 text-rose-400 transition-colors" 
                               title="Delete Record"
                             >
-                              <i class="fa-solid fa-trash-can"></i>
+                              <i class="fa-solid fa-trash-can text-xs"></i>
                             </button>
                           </div>
                         </td>
@@ -237,14 +247,15 @@ const StudentDBComponent = (function() {
               </table>
             </div>
 
-            <!-- Table Footer Stats -->
-            <div class="px-6 py-3 bg-slate-950/80 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+            <!-- Table Footer -->
+            <div class="px-6 py-4 bg-emerald-950/90 border-t border-emerald-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-organic-muted gap-3">
               <div>
-                Showing <span class="font-bold text-amber-400">${filteredStudents.length}</span> of <span class="font-bold text-white">${students.length}</span> students
+                Showing <span class="font-bold text-organic-pillGold">${filteredStudents.length}</span> of <span class="font-bold text-white">${students.length}</span> contestants
               </div>
-              <div class="flex items-center gap-3">
-                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> Active: ${students.filter(s=>s.status==='Active').length}</span>
-                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-cyan-400"></span> Graduated: ${students.filter(s=>s.status==='Graduated').length}</span>
+              <div class="flex items-center gap-4">
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Team Quaf: ${students.filter(s=>(s.team||'Quaf')==='Quaf').length}</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span> Team Noon: ${students.filter(s=>s.team==='Noon').length}</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Team Meem: ${students.filter(s=>s.team==='Meem').length}</span>
               </div>
             </div>
           </div>
@@ -255,29 +266,25 @@ const StudentDBComponent = (function() {
   }
 
   function attachEvents(onAddStudent, onEditStudent, onAssignPrograms, onLogMarks, onDeleteStudent, onRefresh) {
-    const searchInput = document.getElementById('db-search-input');
-    if (searchInput) {
-      searchInput.addEventListener('input', (e) => {
-        searchQuery = e.target.value;
-        onRefresh();
-      });
-    }
+    document.getElementById('db-search-input')?.addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      onRefresh();
+    });
 
-    const progFilter = document.getElementById('db-program-filter');
-    if (progFilter) {
-      progFilter.addEventListener('change', (e) => {
-        selectedProgramFilter = e.target.value;
-        onRefresh();
-      });
-    }
+    document.getElementById('db-team-filter')?.addEventListener('change', (e) => {
+      selectedTeamFilter = e.target.value;
+      onRefresh();
+    });
 
-    const statusFilter = document.getElementById('db-status-filter');
-    if (statusFilter) {
-      statusFilter.addEventListener('change', (e) => {
-        selectedStatusFilter = e.target.value;
-        onRefresh();
-      });
-    }
+    document.getElementById('db-program-filter')?.addEventListener('change', (e) => {
+      selectedProgramFilter = e.target.value;
+      onRefresh();
+    });
+
+    document.getElementById('db-status-filter')?.addEventListener('change', (e) => {
+      selectedStatusFilter = e.target.value;
+      onRefresh();
+    });
 
     document.getElementById('db-add-student-btn')?.addEventListener('click', onAddStudent);
 
@@ -287,18 +294,18 @@ const StudentDBComponent = (function() {
         students: MadrasaDB.getStudents(),
         programs: MadrasaDB.getPrograms(),
         results: MadrasaDB.getResults(),
-        events: MadrasaDB.getEvents()
+        teams: MadrasaDB.getTeamStandings()
       };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `madrasa_db_backup_${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `ansarul_uloom_meelad_db_${new Date().toISOString().split('T')[0]}.json`;
       a.click();
     });
 
     document.getElementById('db-reset-btn')?.addEventListener('click', () => {
-      if (confirm('Are you sure you want to reset the database back to default seed data? All custom modifications will be reloaded.')) {
+      if (confirm('Reset database back to default Meelad Fest seed data?')) {
         MadrasaDB.resetToDefault();
         onRefresh();
       }
@@ -318,7 +325,7 @@ const StudentDBComponent = (function() {
 
     document.querySelectorAll('.db-action-delete').forEach(btn => {
       btn.addEventListener('click', () => {
-        if (confirm('Are you sure you want to delete this student record? Associated grade transcripts will also be deleted.')) {
+        if (confirm('Are you sure you want to delete this student record?')) {
           onDeleteStudent(btn.dataset.deleteId);
         }
       });
