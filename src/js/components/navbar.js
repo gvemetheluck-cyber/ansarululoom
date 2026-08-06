@@ -1,5 +1,5 @@
 /**
- * Navbar Component with Auth Status & Lock Badges
+ * Navbar Component with Dedicated Judge Portal & Public Results Access
  */
 const NavbarComponent = (function() {
   function render(activeTab, onNavClick, onEditNameClick, onQuickEnroll, onLoginClick, onLogoutClick) {
@@ -12,8 +12,9 @@ const NavbarComponent = (function() {
       { id: 'home', label: 'Home', icon: 'fa-house' },
       { id: 'programs', label: 'Meelad Programs', icon: 'fa-list-check' },
       { id: 'events', label: 'Stage Schedule', icon: 'fa-calendar-days' },
-      { id: 'database', label: 'Student Records', icon: 'fa-database', protected: true, badge: 'Protected' },
-      { id: 'results', label: 'Results Portal', icon: 'fa-trophy', protected: true, badge: 'Protected' }
+      { id: 'results', label: 'Results Portal', icon: 'fa-trophy', public: true }, // PUBLIC to everyone!
+      { id: 'judge', label: 'Judge Portal', icon: 'fa-gavel', protected: true, badge: 'Judge Only' },
+      { id: 'database', label: 'Student Records', icon: 'fa-database', protected: true, badge: 'Admin Only' }
     ];
 
     const container = document.getElementById('navbar-container');
@@ -50,11 +51,11 @@ const NavbarComponent = (function() {
           </div>
 
           <!-- Desktop Nav Tabs -->
-          <nav class="hidden md:flex items-center gap-1.5 bg-[#0A2119] p-1.5 rounded-full border border-emerald-800/60 shadow-inner">
+          <nav class="hidden md:flex items-center gap-1 bg-[#0A2119] p-1.5 rounded-full border border-emerald-800/60 shadow-inner">
             ${navItems.map(item => `
               <button 
                 data-tab="${item.id}" 
-                class="nav-btn px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-2 ${
+                class="nav-btn px-3.5 py-2 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-1.5 ${
                   activeTab === item.id 
                     ? 'btn-pill-gold shadow-md' 
                     : 'text-organic-creamText hover:text-white hover:bg-emerald-900/40'
@@ -65,8 +66,8 @@ const NavbarComponent = (function() {
                 ${item.protected && !isAuthenticated ? `
                   <i class="fa-solid fa-lock text-[10px] text-amber-400" title="Login Required"></i>
                 ` : ''}
-                ${item.protected && isAuthenticated ? `
-                  <span class="text-[9px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-900 text-emerald-300 border border-emerald-700">Unlocked</span>
+                ${item.public ? `
+                  <span class="text-[9px] uppercase font-bold px-1.5 py-0.2 rounded-full bg-emerald-900/80 text-emerald-300 border border-emerald-700/60">Public</span>
                 ` : ''}
               </button>
             `).join('')}
@@ -75,9 +76,9 @@ const NavbarComponent = (function() {
           <!-- Auth & Action Buttons -->
           <div class="hidden lg:flex items-center gap-3">
             ${isAuthenticated ? `
-              <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950 border border-emerald-700 text-xs text-emerald-300 font-bold">
-                <i class="fa-solid fa-user-shield text-amber-400"></i>
-                <span>${session ? session.username : 'Admin'}</span>
+              <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950 border border-emerald-700 text-xs text-emerald-300 font-bold">
+                <i class="fa-solid fa-user-check text-amber-400"></i>
+                <span>${session ? session.username : 'User'}</span>
               </div>
 
               <button id="auth-logout-btn" class="px-3.5 py-2 rounded-full text-xs font-bold text-rose-300 hover:text-white bg-rose-950/60 hover:bg-rose-900/80 border border-rose-800/60 transition-colors flex items-center gap-1.5" title="Sign Out">
@@ -85,16 +86,11 @@ const NavbarComponent = (function() {
                 <span>Logout</span>
               </button>
             ` : `
-              <button id="auth-login-btn" class="px-4 py-2 rounded-full text-xs font-bold text-organic-pillGold bg-emerald-950 border border-amber-500/50 hover:bg-emerald-900 transition-colors flex items-center gap-1.5 shadow-sm">
-                <i class="fa-solid fa-lock text-amber-400"></i>
-                <span>Admin Login</span>
+              <button id="auth-login-btn" class="btn-pill-gold px-5 py-2 text-xs font-bold flex items-center gap-2 shadow-md">
+                <i class="fa-solid fa-gavel text-organic-darkText"></i>
+                <span>Judge Login</span>
               </button>
             `}
-
-            <button id="quick-enroll-btn" class="btn-pill-gold px-5 py-2 text-xs font-bold flex items-center gap-2">
-              <i class="fa-solid fa-user-plus text-organic-darkText"></i>
-              <span>Register Student</span>
-            </button>
           </div>
 
           <!-- Mobile Menu Button -->
@@ -119,6 +115,7 @@ const NavbarComponent = (function() {
                 <span>${item.label}</span>
               </div>
               ${item.protected && !isAuthenticated ? `<i class="fa-solid fa-lock text-amber-400 text-xs"></i>` : ''}
+              ${item.public ? `<span class="text-[10px] text-emerald-400 font-bold">Public</span>` : ''}
             </button>
           `).join('')}
 
@@ -129,7 +126,7 @@ const NavbarComponent = (function() {
               </button>
             ` : `
               <button id="mobile-auth-login" class="flex-1 py-2.5 rounded-xl text-xs font-bold text-organic-pillGold bg-emerald-950 border border-amber-500/50 text-center">
-                <i class="fa-solid fa-lock mr-1 text-amber-400"></i> Admin Login
+                <i class="fa-solid fa-gavel mr-1 text-amber-400"></i> Judge Login
               </button>
             `}
           </div>
@@ -150,7 +147,6 @@ const NavbarComponent = (function() {
     });
 
     document.getElementById('brand-header-btn')?.addEventListener('click', () => onNavClick('home'));
-    document.getElementById('quick-enroll-btn')?.addEventListener('click', onQuickEnroll);
     
     document.getElementById('auth-login-btn')?.addEventListener('click', onLoginClick);
     document.getElementById('mobile-auth-login')?.addEventListener('click', () => {

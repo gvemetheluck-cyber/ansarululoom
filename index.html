@@ -1,48 +1,42 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ansarul Uloom Madrasa | Andona, Thamarassery, Kozhikkode - Meelad Fest</title>
-  <meta name="description" content="Ansarul Uloom Madrasa, Andona, Thamarassery, Kozhikkode - Meelad Fest Programs, Events, Student Database and Competition Results Portal.">
+  <title>Ansarul Uloom Madrasa, Andona, Thamarassery | Meelad Fest 2026</title>
+  <meta name="description" content="Official Portal for Ansarul Uloom Madrasa, Andona, Thamarassery, Kozhikkode. Meelad Fest 2026 Team Leaderboard (Quaf, Noon, Meem), Student Records & Results.">
   
-  <!-- Google Fonts: Outfit (Rounded Header), DM Sans (Clean Body), Amiri (Arabic) -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300..800;1,9..40,300..800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   
   <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
-  <!-- Tailwind CSS CDN with Custom Theme Config -->
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           colors: {
             organic: {
-              bg: '#06140E',
-              bgLight: '#0C2219',
+              darkBg: '#06140E',
+              darkBgGrad: '#0C2219',
               cardGreen: '#12382A',
-              cardGreenHover: '#184937',
               cardBrown: '#3D241B',
-              cardBrownHover: '#4F3024',
               cardSand: '#DDB892',
-              cardSandHover: '#E6CCB2',
-              accentSand: '#E8D5B7',
               pillGold: '#E6C594',
-              pillGoldHover: '#F0D4A8',
-              emeraldText: '#A3E635',
-              creamText: '#F7EDE2',
-              darkText: '#221510',
-              muted: '#8FB9A8'
+              pillGreen: '#2D6A4F',
+              creamText: '#F5EBE0',
+              muted: '#A3B18A',
+              darkText: '#1B2A23'
             }
           },
           fontFamily: {
-            sans: ['DM Sans', 'sans-serif'],
             title: ['Outfit', 'sans-serif'],
+            body: ['DM Sans', 'sans-serif'],
             arabic: ['Amiri', 'serif']
           },
           borderRadius: {
@@ -54,47 +48,40 @@
     }
   </script>
   
-  <!-- Custom Stylesheet -->
+  <!-- Main Styling -->
   <link rel="stylesheet" href="src/css/main.css">
 </head>
-<body class="bg-organic-bg text-organic-creamText font-sans antialiased min-h-screen selection:bg-amber-400 selection:text-organic-darkText relative overflow-x-hidden">
+<body class="bg-[#06140E] text-organic-creamText font-body antialiased selection:bg-amber-400 selection:text-organic-darkBg flex flex-col min-h-screen">
+  
+  <!-- Background Canvas for Ambient Leaf Animation -->
+  <canvas id="organic-leaf-canvas" class="fixed inset-0 pointer-events-none z-0 opacity-40"></canvas>
 
-  <!-- Ambient Leaf Background Canvas -->
-  <canvas id="ambient-canvas" class="fixed inset-0 pointer-events-none z-0 opacity-60"></canvas>
+  <!-- Navigation Container -->
+  <header id="navbar-container" class="sticky top-0 z-50 transition-all duration-300"></header>
 
-  <!-- Main Container -->
-  <div id="app" class="relative z-10 flex flex-col min-h-screen">
-    <!-- Navbar Component Container -->
-    <header id="navbar-container" class="sticky top-0 z-50 transition-all duration-300"></header>
+  <!-- Main View Container -->
+  <main id="main-content" class="flex-grow z-10 relative"></main>
 
-    <!-- Main Content Area -->
-    <main id="main-content" class="flex-grow">
-      <!-- Dynamic Sections rendered via JS -->
-    </main>
+  <!-- Footer Container -->
+  <footer id="footer-container" class="relative z-10"></footer>
 
-    <!-- Footer Component Container -->
-    <footer id="footer-container" class="bg-[#040C0A] border-t border-emerald-900/40 backdrop-blur-md"></footer>
+  <!-- Global Modal Dialog Container -->
+  <div id="modal-container" class="modal-overlay">
+    <div id="modal-content" class="modal-card card-green rounded-4xl border border-emerald-700/60 shadow-2xl relative"></div>
   </div>
 
-  <!-- Global Modal Layer -->
-  <div id="modal-container" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#040C0A]/85 backdrop-blur-md hidden transition-opacity duration-300 opacity-0 pointer-events-none">
-    <div id="modal-content" class="bg-organic-cardGreen border border-emerald-700/50 rounded-4xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95 text-organic-creamText">
-      <!-- Dynamic Modal Content rendered via JS -->
-    </div>
-  </div>
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-  <!-- Toast Notification System Container -->
-  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-3 pointer-events-none"></div>
-
-  <!-- JS Modules -->
+  <!-- Application Modules -->
   <script src="src/js/db.js"></script>
-  <script src="src/js/canvas-bg.js"></script>
   <script src="src/js/components/navbar.js"></script>
   <script src="src/js/components/hero.js"></script>
   <script src="src/js/components/programs.js"></script>
   <script src="src/js/components/events.js"></script>
   <script src="src/js/components/student-db.js"></script>
   <script src="src/js/components/results.js"></script>
+  <script src="src/js/components/judge-portal.js"></script>
   <script src="src/js/components/footer.js"></script>
   <script src="src/js/app.js"></script>
 </body>

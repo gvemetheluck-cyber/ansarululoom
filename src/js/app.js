@@ -1,6 +1,7 @@
 /**
- * Main Application Orchestrator & State Coordinator
- * Includes Authentication Gating for Student Records & Results Portal
+ * Main Application Orchestrator & Router
+ * Ansarul Uloom Madrasa, Andona, Thamarassery, Kozhikkode
+ * Includes Dedicated Judge Portal & Public Results Access
  */
 (function() {
   let activeTab = 'home';
@@ -16,7 +17,7 @@
       (tab) => switchTab(tab),
       () => openEditNameModal(),
       () => openAddStudentModal(),
-      () => openLoginModal(),
+      () => openLoginModal('judge'),
       () => handleLogout()
     );
 
@@ -27,14 +28,14 @@
 
     if (activeTab === 'home') {
       main.innerHTML = `
-        ${HeroComponent.render((tab) => switchTab(tab), () => openAddStudentModal())}
+        ${HeroComponent.render((tab) => switchTab(tab), () => switchTab('judge'))}
         ${ProgramsComponent.render(
           (id) => openProgramDetailsModal(id),
           (id) => openQuickEnrollModal(id)
         )}
         ${EventsComponent.render((id) => openEventDetailsModal(id))}
       `;
-      HeroComponent.attachEvents((tab) => switchTab(tab), () => openAddStudentModal());
+      HeroComponent.attachEvents((tab) => switchTab(tab), () => switchTab('judge'));
       ProgramsComponent.attachEvents(
         (id) => openProgramDetailsModal(id),
         (id) => openQuickEnrollModal(id),
@@ -65,8 +66,29 @@
         (id) => handleRSVP(id)
       );
 
+    } else if (activeTab === 'results') {
+      // PUBLIC ACCESS TO EVERYONE!
+      main.innerHTML = ResultsComponent.render((studentId) => switchTab('judge'));
+      ResultsComponent.attachEvents(
+        (studentId) => switchTab('judge'),
+        () => renderView()
+      );
+
+    } else if (activeTab === 'judge') {
+      // Protected Judge Check
+      if (!MadrasaDB.isAuthenticated()) {
+        openLoginModal('judge');
+        return;
+      }
+      main.innerHTML = JudgePortalComponent.render();
+      JudgePortalComponent.attachEvents(
+        (resultObj) => handleJudgeSubmitScore(resultObj),
+        () => handleLogout(),
+        () => renderView()
+      );
+
     } else if (activeTab === 'database') {
-      // Protected Check
+      // Protected Admin Check
       if (!MadrasaDB.isAuthenticated()) {
         openLoginModal('database');
         return;
@@ -75,27 +97,15 @@
         () => openAddStudentModal(),
         (id) => openEditStudentModal(id),
         (id) => openAssignProgramsModal(id),
-        (id) => openLogMarksModal(id),
+        (id) => switchTab('judge'),
         (id) => handleDeleteStudent(id)
       );
       StudentDBComponent.attachEvents(
         () => openAddStudentModal(),
         (id) => openEditStudentModal(id),
         (id) => openAssignProgramsModal(id),
-        (id) => openLogMarksModal(id),
+        (id) => switchTab('judge'),
         (id) => handleDeleteStudent(id),
-        () => renderView()
-      );
-
-    } else if (activeTab === 'results') {
-      // Protected Check
-      if (!MadrasaDB.isAuthenticated()) {
-        openLoginModal('results');
-        return;
-      }
-      main.innerHTML = ResultsComponent.render((studentId) => openLogMarksModal(studentId));
-      ResultsComponent.attachEvents(
-        (studentId) => openLogMarksModal(studentId),
         () => renderView()
       );
     }
@@ -105,7 +115,7 @@
 
   function switchTab(tab) {
     // Intercept protected tabs if not logged in
-    if ((tab === 'database' || tab === 'results') && !MadrasaDB.isAuthenticated()) {
+    if ((tab === 'judge' || tab === 'database') && !MadrasaDB.isAuthenticated()) {
       openLoginModal(tab);
       return;
     }
@@ -168,19 +178,19 @@
     }, 3500);
   }
 
-  // --- AUTHENTICATION MODAL & ACTIONS ---
+  // --- AUTHENTICATION MODAL ---
 
-  function openLoginModal(targetTabAfterLogin = null) {
+  function openLoginModal(targetTabAfterLogin = 'judge') {
     openModal(`
       <div class="p-6 sm:p-8">
         <div class="flex items-center justify-between pb-4 border-b border-emerald-800/80">
           <div class="flex items-center gap-3">
             <div class="w-12 h-12 rounded-full bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-400 text-2xl shadow-lg">
-              <i class="fa-solid fa-lock"></i>
+              <i class="fa-solid fa-gavel"></i>
             </div>
             <div>
-              <h3 class="text-xl font-bold text-white">Restricted Section Access</h3>
-              <p class="text-xs text-organic-muted">Enter credentials to unlock Student Records & Results Portal.</p>
+              <h3 class="text-xl font-bold text-white">Judge & Admin Authentication</h3>
+              <p class="text-xs text-organic-muted">Enter credentials to unlock Judge Portal & Student Database.</p>
             </div>
           </div>
           <button class="close-modal-btn p-2 text-organic-muted hover:text-white rounded-full hover:bg-emerald-900/40">
@@ -202,7 +212,7 @@
                 type="text" 
                 id="login-username" 
                 required 
-                placeholder="e.g. admin" 
+                placeholder="e.g. judge" 
                 class="w-full pl-10 pr-4 py-3 rounded-full bg-emerald-950 border border-emerald-700 text-organic-pillGold font-bold focus:outline-none focus:border-amber-400"
               >
             </div>
@@ -232,24 +242,23 @@
           <!-- Credential Hint -->
           <div class="p-3.5 rounded-2xl bg-emerald-950 border border-emerald-800 text-[11px] text-organic-muted space-y-1">
             <div class="font-bold text-amber-300 flex items-center gap-1.5">
-              <i class="fa-solid fa-shield-halved"></i> Authorized Credentials:
+              <i class="fa-solid fa-shield-halved"></i> Login Credentials:
             </div>
-            <div>• Username: <code class="text-amber-300 font-mono">admin</code> | Password: <code class="text-amber-300 font-mono">ansarululoom2026</code> (or <code class="text-amber-300 font-mono">admin123</code>)</div>
-            <div>• Username: <code class="text-amber-300 font-mono">teacher</code> | Password: <code class="text-amber-300 font-mono">ansarululoom</code></div>
+            <div>• **Judge Credentials**: Username: <code class="text-amber-300 font-mono">judge</code> | Password: <code class="text-amber-300 font-mono">judge2026</code> (or <code class="text-amber-300 font-mono">judge123</code>)</div>
+            <div>• **Admin Credentials**: Username: <code class="text-amber-300 font-mono">admin</code> | Password: <code class="text-amber-300 font-mono">ansarululoom2026</code> (or <code class="text-amber-300 font-mono">admin123</code>)</div>
           </div>
 
           <div class="pt-4 flex items-center justify-end gap-3 border-t border-emerald-800/80">
             <button type="button" class="close-modal-btn px-4 py-2 rounded-full text-organic-muted hover:text-white">Cancel</button>
             <button type="submit" class="btn-pill-gold px-8 py-3 text-xs font-bold flex items-center gap-2 shadow-lg">
               <i class="fa-solid fa-unlock"></i>
-              <span>Authenticate & Access</span>
+              <span>Authenticate & Enter Portal</span>
             </button>
           </div>
         </form>
       </div>
     `);
 
-    // Toggle password visibility
     const pwdInput = document.getElementById('login-password');
     const pwdBtn = document.getElementById('toggle-password-btn');
     const pwdIcon = document.getElementById('toggle-password-icon');
@@ -271,7 +280,7 @@
 
       const res = MadrasaDB.login(userVal, passVal);
       if (res.success) {
-        showToast(`Welcome back, ${res.session.username}! Access Granted.`, 'success');
+        showToast(`Welcome back, ${res.session.username}! Judge Session Active.`, 'success');
         closeModal();
         if (targetTabAfterLogin) {
           activeTab = targetTabAfterLogin;
@@ -290,12 +299,21 @@
 
   function handleLogout() {
     MadrasaDB.logout();
-    showToast('Logged out successfully. Protected sections locked.', 'info');
-    activeTab = 'home';
+    showToast('Signed out of Judge Session.', 'info');
+    activeTab = 'results';
     renderView();
   }
 
-  // --- OTHER MODAL DIALOGS ---
+  function handleJudgeSubmitScore(resultObj) {
+    const saved = MadrasaDB.saveResult(resultObj);
+    const student = MadrasaDB.getStudentById(resultObj.studentId);
+    const teamName = student ? (student.team || 'Quaf') : 'Quaf';
+
+    showToast(`Saved Evaluation for ${student ? student.name : resultObj.studentId}! ${saved.grade} (+${saved.pointsAwarded} Pts awarded to Team ${teamName})`, 'success');
+    renderView();
+  }
+
+  // --- OTHER MODALS ---
 
   function openEditNameModal() {
     const settings = MadrasaDB.getSettings();
@@ -428,7 +446,6 @@
   }
 
   function openAddStudentModal() {
-    // If not logged in, prompt login
     if (!MadrasaDB.isAuthenticated()) {
       openLoginModal('database');
       return;
@@ -686,147 +703,6 @@
       MadrasaDB.assignStudentToPrograms(studentId, selected);
       showToast(`Updated assignments for ${s.name}`, 'success');
       closeModal();
-      renderView();
-    });
-  }
-
-  function openLogMarksModal(defaultStudentId) {
-    if (!MadrasaDB.isAuthenticated()) {
-      openLoginModal('results');
-      return;
-    }
-    const students = MadrasaDB.getStudents();
-    const targetStudent = MadrasaDB.getStudentById(defaultStudentId) || students[0];
-    const programs = MadrasaDB.getPrograms();
-
-    openModal(`
-      <div class="p-6 sm:p-8">
-        <div class="flex items-center justify-between pb-4 border-b border-emerald-800/80">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-              <i class="fa-solid fa-pen-nib text-lg"></i>
-            </div>
-            <div>
-              <h3 class="text-xl font-bold text-white">Input Meelad Contest Scores</h3>
-              <p class="text-xs text-organic-muted">Record scores and automatically award Championship Points to student's team.</p>
-            </div>
-          </div>
-          <button class="close-modal-btn p-2 text-organic-muted hover:text-white rounded-full hover:bg-emerald-900/40">
-            <i class="fa-solid fa-xmark text-lg"></i>
-          </button>
-        </div>
-
-        <form id="log-marks-form" class="mt-6 space-y-4 text-xs">
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label class="block font-semibold text-organic-creamText mb-1">Contestant Student *</label>
-              <select id="marks-student-id" class="w-full px-3 py-2.5 rounded-full bg-emerald-950 border border-emerald-700 text-organic-pillGold font-bold">
-                ${students.map(s => `
-                  <option value="${s.id}" ${targetStudent && s.id === targetStudent.id ? 'selected' : ''}>
-                    ${s.name} (Team ${s.team || 'Quaf'})
-                  </option>
-                `).join('')}
-              </select>
-            </div>
-
-            <div>
-              <label class="block font-semibold text-organic-creamText mb-1">Competition Division *</label>
-              <select id="marks-program-id" class="w-full px-3 py-2.5 rounded-full bg-emerald-950 border border-emerald-700 text-slate-200">
-                ${programs.map(p => `
-                  <option value="${p.id}">${p.name}</option>
-                `).join('')}
-              </select>
-            </div>
-
-            <div>
-              <label class="block font-semibold text-organic-creamText mb-1">Meelad Term</label>
-              <input type="text" id="marks-term" value="Meelad Fest 2026" required class="w-full px-3 py-2.5 rounded-full bg-emerald-950 border border-emerald-700 text-slate-200">
-            </div>
-          </div>
-
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <label class="font-bold text-organic-pillGold">Contest Scores (0-100):</label>
-              <button type="button" id="add-subject-row-btn" class="text-xs text-emerald-400 hover:underline flex items-center gap-1">
-                <i class="fa-solid fa-plus-circle"></i> Add Contest Item
-              </button>
-            </div>
-
-            <div id="subject-rows-container" class="space-y-2">
-              <div class="subject-row flex items-center gap-2">
-                <input type="text" placeholder="Item Name (e.g. MADH GAANAM)" value="MADH GAANAM" class="subj-name flex-grow px-3.5 py-2 rounded-xl bg-emerald-950 border border-emerald-700 text-slate-200">
-                <input type="number" placeholder="Score" value="95" min="0" max="100" class="subj-score w-20 px-3.5 py-2 rounded-xl bg-emerald-950 border border-emerald-700 text-organic-pillGold font-bold">
-                <span class="text-organic-muted font-bold">/ 100</span>
-              </div>
-              <div class="subject-row flex items-center gap-2">
-                <input type="text" placeholder="Item Name" value="PRASANGAM MALAYALAM" class="subj-name flex-grow px-3.5 py-2 rounded-xl bg-emerald-950 border border-emerald-700 text-slate-200">
-                <input type="number" placeholder="Score" value="92" min="0" max="100" class="subj-score w-20 px-3.5 py-2 rounded-xl bg-emerald-950 border border-emerald-700 text-organic-pillGold font-bold">
-                <span class="text-organic-muted font-bold">/ 100</span>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label class="block font-semibold text-organic-creamText mb-1">Judge Remarks:</label>
-            <textarea id="marks-remarks" rows="2" placeholder="Flawless recitation and vocal projection..." class="w-full px-3.5 py-2 rounded-2xl bg-emerald-950 border border-emerald-700 text-slate-200 focus:border-amber-400"></textarea>
-          </div>
-
-          <div class="pt-4 flex items-center justify-end gap-3 border-t border-emerald-800/80">
-            <button type="button" class="close-modal-btn px-4 py-2 rounded-full text-organic-muted hover:text-white">Cancel</button>
-            <button type="submit" class="btn-pill-gold px-6 py-2.5 text-xs font-bold">Save Scores & Award Points</button>
-          </div>
-        </form>
-      </div>
-    `);
-
-    document.getElementById('add-subject-row-btn')?.addEventListener('click', () => {
-      const container = document.getElementById('subject-rows-container');
-      if (container) {
-        const row = document.createElement('div');
-        row.className = 'subject-row flex items-center gap-2';
-        row.innerHTML = `
-          <input type="text" placeholder="Item Name" class="subj-name flex-grow px-3.5 py-2 rounded-xl bg-emerald-950 border border-emerald-700 text-slate-200">
-          <input type="number" placeholder="Score" value="90" min="0" max="100" class="subj-score w-20 px-3.5 py-2 rounded-xl bg-emerald-950 border border-emerald-700 text-organic-pillGold font-bold">
-          <span class="text-organic-muted font-bold">/ 100</span>
-        `;
-        container.appendChild(row);
-      }
-    });
-
-    document.getElementById('log-marks-form')?.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const studentId = document.getElementById('marks-student-id').value;
-      const programId = document.getElementById('marks-program-id').value;
-      const term = document.getElementById('marks-term').value.trim();
-      const remarks = document.getElementById('marks-remarks').value.trim();
-
-      const rows = document.querySelectorAll('.subject-row');
-      const marks = [];
-      rows.forEach(r => {
-        const name = r.querySelector('.subj-name').value.trim();
-        const score = parseFloat(r.querySelector('.subj-score').value || 0);
-        if (name) {
-          marks.push({ subject: name, score: score, max: 100 });
-        }
-      });
-
-      if (marks.length === 0) {
-        alert('Please add at least one contest item score.');
-        return;
-      }
-
-      const res = MadrasaDB.saveResult({
-        studentId: studentId,
-        programId: programId,
-        term: term,
-        marks: marks,
-        remarks: remarks
-      });
-
-      const s = MadrasaDB.getStudentById(studentId);
-      showToast(`Scores saved for ${s.name}! ${res.grade} - Awarded ${res.pointsAwarded} points to Team ${s.team}!`, 'success');
-      closeModal();
-      activeTab = 'results';
       renderView();
     });
   }
