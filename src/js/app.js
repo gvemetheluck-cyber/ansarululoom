@@ -1,6 +1,6 @@
 /**
  * Main Application Orchestrator & State Coordinator
- * Includes Meelad 3-Team Selection (Quaf, Noon, Meem)
+ * Includes Authentication Gating for Student Records & Results Portal
  */
 (function() {
   let activeTab = 'home';
@@ -15,7 +15,9 @@
       activeTab, 
       (tab) => switchTab(tab),
       () => openEditNameModal(),
-      () => openAddStudentModal()
+      () => openAddStudentModal(),
+      () => openLoginModal(),
+      () => handleLogout()
     );
 
     FooterComponent.render((tab) => switchTab(tab));
@@ -64,6 +66,11 @@
       );
 
     } else if (activeTab === 'database') {
+      // Protected Check
+      if (!MadrasaDB.isAuthenticated()) {
+        openLoginModal('database');
+        return;
+      }
       main.innerHTML = StudentDBComponent.render(
         () => openAddStudentModal(),
         (id) => openEditStudentModal(id),
@@ -81,6 +88,11 @@
       );
 
     } else if (activeTab === 'results') {
+      // Protected Check
+      if (!MadrasaDB.isAuthenticated()) {
+        openLoginModal('results');
+        return;
+      }
       main.innerHTML = ResultsComponent.render((studentId) => openLogMarksModal(studentId));
       ResultsComponent.attachEvents(
         (studentId) => openLogMarksModal(studentId),
@@ -92,6 +104,11 @@
   }
 
   function switchTab(tab) {
+    // Intercept protected tabs if not logged in
+    if ((tab === 'database' || tab === 'results') && !MadrasaDB.isAuthenticated()) {
+      openLoginModal(tab);
+      return;
+    }
     activeTab = tab;
     renderView();
   }
@@ -151,9 +168,135 @@
     }, 3500);
   }
 
-  // --- MODAL DIALOGS ---
+  // --- AUTHENTICATION MODAL & ACTIONS ---
 
-  // 1. Edit Madrasa Name Modal
+  function openLoginModal(targetTabAfterLogin = null) {
+    openModal(`
+      <div class="p-6 sm:p-8">
+        <div class="flex items-center justify-between pb-4 border-b border-emerald-800/80">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-400 text-2xl shadow-lg">
+              <i class="fa-solid fa-lock"></i>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-white">Restricted Section Access</h3>
+              <p class="text-xs text-organic-muted">Enter credentials to unlock Student Records & Results Portal.</p>
+            </div>
+          </div>
+          <button class="close-modal-btn p-2 text-organic-muted hover:text-white rounded-full hover:bg-emerald-900/40">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <form id="login-auth-form" class="mt-6 space-y-4 text-xs">
+          <div id="login-error-msg" class="hidden p-3 rounded-2xl bg-rose-950/80 border border-rose-800 text-rose-300 font-bold flex items-center gap-2">
+            <i class="fa-solid fa-circle-exclamation text-rose-400"></i>
+            <span id="login-error-text">Invalid credentials.</span>
+          </div>
+
+          <div>
+            <label class="block font-semibold text-organic-creamText mb-1.5">Username *</label>
+            <div class="relative">
+              <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-organic-muted text-xs"></i>
+              <input 
+                type="text" 
+                id="login-username" 
+                required 
+                placeholder="e.g. admin" 
+                class="w-full pl-10 pr-4 py-3 rounded-full bg-emerald-950 border border-emerald-700 text-organic-pillGold font-bold focus:outline-none focus:border-amber-400"
+              >
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-semibold text-organic-creamText mb-1.5">Password *</label>
+            <div class="relative">
+              <i class="fa-solid fa-key absolute left-4 top-1/2 -translate-y-1/2 text-organic-muted text-xs"></i>
+              <input 
+                type="password" 
+                id="login-password" 
+                required 
+                placeholder="••••••••" 
+                class="w-full pl-10 pr-10 py-3 rounded-full bg-emerald-950 border border-emerald-700 text-slate-100 focus:outline-none focus:border-amber-400"
+              >
+              <button 
+                type="button" 
+                id="toggle-password-btn" 
+                class="absolute right-4 top-1/2 -translate-y-1/2 text-organic-muted hover:text-white"
+              >
+                <i class="fa-solid fa-eye" id="toggle-password-icon"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Credential Hint -->
+          <div class="p-3.5 rounded-2xl bg-emerald-950 border border-emerald-800 text-[11px] text-organic-muted space-y-1">
+            <div class="font-bold text-amber-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-shield-halved"></i> Authorized Credentials:
+            </div>
+            <div>• Username: <code class="text-amber-300 font-mono">admin</code> | Password: <code class="text-amber-300 font-mono">ansarululoom2026</code> (or <code class="text-amber-300 font-mono">admin123</code>)</div>
+            <div>• Username: <code class="text-amber-300 font-mono">teacher</code> | Password: <code class="text-amber-300 font-mono">ansarululoom</code></div>
+          </div>
+
+          <div class="pt-4 flex items-center justify-end gap-3 border-t border-emerald-800/80">
+            <button type="button" class="close-modal-btn px-4 py-2 rounded-full text-organic-muted hover:text-white">Cancel</button>
+            <button type="submit" class="btn-pill-gold px-8 py-3 text-xs font-bold flex items-center gap-2 shadow-lg">
+              <i class="fa-solid fa-unlock"></i>
+              <span>Authenticate & Access</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    `);
+
+    // Toggle password visibility
+    const pwdInput = document.getElementById('login-password');
+    const pwdBtn = document.getElementById('toggle-password-btn');
+    const pwdIcon = document.getElementById('toggle-password-icon');
+
+    pwdBtn?.addEventListener('click', () => {
+      if (pwdInput.type === 'password') {
+        pwdInput.type = 'text';
+        pwdIcon.className = 'fa-solid fa-eye-slash';
+      } else {
+        pwdInput.type = 'password';
+        pwdIcon.className = 'fa-solid fa-eye';
+      }
+    });
+
+    document.getElementById('login-auth-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const userVal = document.getElementById('login-username').value;
+      const passVal = document.getElementById('login-password').value;
+
+      const res = MadrasaDB.login(userVal, passVal);
+      if (res.success) {
+        showToast(`Welcome back, ${res.session.username}! Access Granted.`, 'success');
+        closeModal();
+        if (targetTabAfterLogin) {
+          activeTab = targetTabAfterLogin;
+        }
+        renderView();
+      } else {
+        const errorBox = document.getElementById('login-error-msg');
+        const errorText = document.getElementById('login-error-text');
+        if (errorBox && errorText) {
+          errorText.textContent = res.error || 'Invalid credentials.';
+          errorBox.classList.remove('hidden');
+        }
+      }
+    });
+  }
+
+  function handleLogout() {
+    MadrasaDB.logout();
+    showToast('Logged out successfully. Protected sections locked.', 'info');
+    activeTab = 'home';
+    renderView();
+  }
+
+  // --- OTHER MODAL DIALOGS ---
+
   function openEditNameModal() {
     const settings = MadrasaDB.getSettings();
     openModal(`
@@ -165,7 +308,7 @@
             </div>
             <div>
               <h3 class="text-xl font-bold text-white">Customize Madrasa Branding</h3>
-              <p class="text-xs text-organic-muted">Update the official title displayed across the portal.</p>
+              <p class="text-xs text-organic-muted">Update official title displayed across the portal.</p>
             </div>
           </div>
           <button class="close-modal-btn p-2 text-organic-muted hover:text-white rounded-full hover:bg-emerald-900/40">
@@ -217,7 +360,6 @@
     });
   }
 
-  // 2. Program Details Modal
   function openProgramDetailsModal(programId) {
     const p = MadrasaDB.getProgramById(programId);
     if (!p) return;
@@ -285,8 +427,13 @@
     });
   }
 
-  // 3. Add Student Modal with Team Selection (Quaf, Noon, Meem)
   function openAddStudentModal() {
+    // If not logged in, prompt login
+    if (!MadrasaDB.isAuthenticated()) {
+      openLoginModal('database');
+      return;
+    }
+
     const programs = MadrasaDB.getPrograms();
 
     openModal(`
@@ -404,8 +551,11 @@
     }, 50);
   }
 
-  // 4. Edit Student Profile & Team Modal
   function openEditStudentModal(studentId) {
+    if (!MadrasaDB.isAuthenticated()) {
+      openLoginModal('database');
+      return;
+    }
     const s = MadrasaDB.getStudentById(studentId);
     if (!s) return;
 
@@ -476,8 +626,11 @@
     });
   }
 
-  // 5. Assign Programs Modal
   function openAssignProgramsModal(studentId) {
+    if (!MadrasaDB.isAuthenticated()) {
+      openLoginModal('database');
+      return;
+    }
     const s = MadrasaDB.getStudentById(studentId);
     const programs = MadrasaDB.getPrograms();
     if (!s) return;
@@ -537,8 +690,11 @@
     });
   }
 
-  // 6. Log Exam Marks Modal with Championship Points Auto-calculation
   function openLogMarksModal(defaultStudentId) {
+    if (!MadrasaDB.isAuthenticated()) {
+      openLoginModal('results');
+      return;
+    }
     const students = MadrasaDB.getStudents();
     const targetStudent = MadrasaDB.getStudentById(defaultStudentId) || students[0];
     const programs = MadrasaDB.getPrograms();
@@ -675,7 +831,6 @@
     });
   }
 
-  // 7. Event Details & RSVP Modal
   function openEventDetailsModal(eventId) {
     const events = MadrasaDB.getEvents();
     const evt = events.find(e => e.id === eventId);
@@ -746,6 +901,10 @@
   }
 
   function handleDeleteStudent(studentId) {
+    if (!MadrasaDB.isAuthenticated()) {
+      openLoginModal('database');
+      return;
+    }
     MadrasaDB.deleteStudent(studentId);
     showToast(`Deleted record for student ${studentId}`, 'error');
     renderView();

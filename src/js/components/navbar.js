@@ -1,17 +1,19 @@
 /**
- * Navbar Component - Organic Earth & Leaf Aesthetic
+ * Navbar Component with Auth Status & Lock Badges
  */
 const NavbarComponent = (function() {
-  function render(activeTab, onNavClick, onEditNameClick, onQuickEnroll) {
+  function render(activeTab, onNavClick, onEditNameClick, onQuickEnroll, onLoginClick, onLogoutClick) {
     const settings = MadrasaDB.getSettings();
     const madrasaName = settings.madrasaName || "Ansarul Uloom Madrasa";
+    const isAuthenticated = MadrasaDB.isAuthenticated();
+    const session = MadrasaDB.getAuthSession();
 
     const navItems = [
       { id: 'home', label: 'Home', icon: 'fa-house' },
       { id: 'programs', label: 'Meelad Programs', icon: 'fa-list-check' },
       { id: 'events', label: 'Stage Schedule', icon: 'fa-calendar-days' },
-      { id: 'database', label: 'Student Records', icon: 'fa-database', badge: 'Admin' },
-      { id: 'results', label: 'Results Portal', icon: 'fa-trophy' }
+      { id: 'database', label: 'Student Records', icon: 'fa-database', protected: true, badge: 'Protected' },
+      { id: 'results', label: 'Results Portal', icon: 'fa-trophy', protected: true, badge: 'Protected' }
     ];
 
     const container = document.getElementById('navbar-container');
@@ -60,19 +62,36 @@ const NavbarComponent = (function() {
               >
                 <i class="fa-solid ${item.icon} ${activeTab === item.id ? 'text-organic-darkText' : 'text-organic-muted'}"></i>
                 <span>${item.label}</span>
-                ${item.badge ? `<span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-900/60 text-emerald-300 border border-emerald-700/50">${item.badge}</span>` : ''}
+                ${item.protected && !isAuthenticated ? `
+                  <i class="fa-solid fa-lock text-[10px] text-amber-400" title="Login Required"></i>
+                ` : ''}
+                ${item.protected && isAuthenticated ? `
+                  <span class="text-[9px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-900 text-emerald-300 border border-emerald-700">Unlocked</span>
+                ` : ''}
               </button>
             `).join('')}
           </nav>
 
-          <!-- Action Buttons -->
+          <!-- Auth & Action Buttons -->
           <div class="hidden lg:flex items-center gap-3">
-            <button id="quick-result-btn" class="px-4 py-2.5 rounded-full text-xs font-bold text-organic-creamText hover:text-white bg-emerald-900/40 hover:bg-emerald-900/70 border border-emerald-700/50 transition-all flex items-center gap-2 shadow-sm">
-              <i class="fa-solid fa-trophy text-organic-pillGold"></i>
-              <span>Results Portal</span>
-            </button>
+            ${isAuthenticated ? `
+              <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950 border border-emerald-700 text-xs text-emerald-300 font-bold">
+                <i class="fa-solid fa-user-shield text-amber-400"></i>
+                <span>${session ? session.username : 'Admin'}</span>
+              </div>
 
-            <button id="quick-enroll-btn" class="btn-pill-gold px-5 py-2.5 rounded-full text-xs font-bold flex items-center gap-2">
+              <button id="auth-logout-btn" class="px-3.5 py-2 rounded-full text-xs font-bold text-rose-300 hover:text-white bg-rose-950/60 hover:bg-rose-900/80 border border-rose-800/60 transition-colors flex items-center gap-1.5" title="Sign Out">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Logout</span>
+              </button>
+            ` : `
+              <button id="auth-login-btn" class="px-4 py-2 rounded-full text-xs font-bold text-organic-pillGold bg-emerald-950 border border-amber-500/50 hover:bg-emerald-900 transition-colors flex items-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-lock text-amber-400"></i>
+                <span>Admin Login</span>
+              </button>
+            `}
+
+            <button id="quick-enroll-btn" class="btn-pill-gold px-5 py-2 text-xs font-bold flex items-center gap-2">
               <i class="fa-solid fa-user-plus text-organic-darkText"></i>
               <span>Register Student</span>
             </button>
@@ -99,14 +118,20 @@ const NavbarComponent = (function() {
                 <i class="fa-solid ${item.icon} text-organic-pillGold w-5"></i>
                 <span>${item.label}</span>
               </div>
-              ${item.badge ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-800 text-emerald-300">${item.badge}</span>` : ''}
+              ${item.protected && !isAuthenticated ? `<i class="fa-solid fa-lock text-amber-400 text-xs"></i>` : ''}
             </button>
           `).join('')}
 
           <div class="flex gap-2 mt-2 pt-2 border-t border-emerald-900/60">
-            <button id="mobile-quick-enroll" class="btn-pill-gold w-full py-2.5 text-xs font-bold text-center">
-              <i class="fa-solid fa-user-plus mr-1"></i> Register Student
-            </button>
+            ${isAuthenticated ? `
+              <button id="mobile-auth-logout" class="flex-1 py-2.5 rounded-xl text-xs font-bold text-rose-300 bg-rose-950 border border-rose-800 text-center">
+                <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
+              </button>
+            ` : `
+              <button id="mobile-auth-login" class="flex-1 py-2.5 rounded-xl text-xs font-bold text-organic-pillGold bg-emerald-950 border border-amber-500/50 text-center">
+                <i class="fa-solid fa-lock mr-1 text-amber-400"></i> Admin Login
+              </button>
+            `}
           </div>
         </div>
       </div>
@@ -126,11 +151,19 @@ const NavbarComponent = (function() {
 
     document.getElementById('brand-header-btn')?.addEventListener('click', () => onNavClick('home'));
     document.getElementById('quick-enroll-btn')?.addEventListener('click', onQuickEnroll);
-    document.getElementById('mobile-quick-enroll')?.addEventListener('click', () => {
-      onQuickEnroll();
+    
+    document.getElementById('auth-login-btn')?.addEventListener('click', onLoginClick);
+    document.getElementById('mobile-auth-login')?.addEventListener('click', () => {
+      onLoginClick();
       document.getElementById('mobile-menu')?.classList.add('hidden');
     });
-    document.getElementById('quick-result-btn')?.addEventListener('click', () => onNavClick('results'));
+
+    document.getElementById('auth-logout-btn')?.addEventListener('click', onLogoutClick);
+    document.getElementById('mobile-auth-logout')?.addEventListener('click', () => {
+      onLogoutClick();
+      document.getElementById('mobile-menu')?.classList.add('hidden');
+    });
+
     document.getElementById('mobile-menu-btn')?.addEventListener('click', () => {
       document.getElementById('mobile-menu')?.classList.toggle('hidden');
     });
