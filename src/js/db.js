@@ -1,20 +1,20 @@
 /**
  * Madrasa Database Engine - Ansarul Uloom Madrasa, Andona, Thamarassery, Kozhikkode
- * Includes 3 Meelad Fest Competition Teams: Quaf (ق), Noon (ن), Meem (م)
+ * Updated with Complete Official Student Roster for Team Meem (م), Team Noon (ن), and Team Quaf (ق)
  */
 const MadrasaDB = (function() {
   const STORAGE_KEYS = {
-    STUDENTS: 'ansarul_uloom_db_students_v3',
-    PROGRAMS: 'ansarul_uloom_db_programs_v3',
-    EVENTS: 'ansarul_uloom_db_events_v3',
-    RESULTS: 'ansarul_uloom_db_results_v3',
-    SETTINGS: 'ansarul_uloom_db_settings_v3'
+    STUDENTS: 'ansarul_uloom_db_students_v4',
+    PROGRAMS: 'ansarul_uloom_db_programs_v4',
+    EVENTS: 'ansarul_uloom_db_events_v4',
+    RESULTS: 'ansarul_uloom_db_results_v4',
+    SETTINGS: 'ansarul_uloom_db_settings_v4'
   };
 
   const DEFAULT_SETTINGS = {
     madrasaName: "Ansarul Uloom Madrasa",
     location: "Andona, Thamarassery, Kozhikkode",
-    tagline: "Meelad Fest Programs, Team Leaderboard & Results Portal",
+    tagline: "Meelad Fest Official Teams & Competition Roster",
     established: "Andona, Thamarassery",
     address: "Andona, Thamarassery, Kozhikkode District, Kerala",
     contactEmail: "info@ansarululoom-andona.edu",
@@ -36,8 +36,8 @@ const MadrasaDB = (function() {
       timing: "Stage A & B | Morning Session",
       instructor: "Convenor: Usthad Mansoor",
       fee: "Meelad Entry",
-      capacity: 60,
-      enrolledCount: 42,
+      capacity: 100,
+      enrolledCount: 0,
       icon: "fa-child",
       description: "Meelad stage & off-stage competitions for early kids.",
       subjects: [
@@ -61,8 +61,8 @@ const MadrasaDB = (function() {
       timing: "Stage A | 10:00 AM Onwards",
       instructor: "Convenor: Usthad Faisal",
       fee: "Meelad Entry",
-      capacity: 50,
-      enrolledCount: 38,
+      capacity: 100,
+      enrolledCount: 0,
       icon: "fa-child-reaching",
       description: "Recitation, memorization, and art competitions for Sub Junior Boys.",
       subjects: [
@@ -88,8 +88,8 @@ const MadrasaDB = (function() {
       timing: "Stage B | 10:00 AM Onwards",
       instructor: "Convenor: Usthadh Shareefa",
       fee: "Meelad Entry",
-      capacity: 50,
-      enrolledCount: 36,
+      capacity: 100,
+      enrolledCount: 0,
       icon: "fa-person-dress",
       description: "Meelad recitation, quiz, and writing competitions for Sub Junior Girls.",
       subjects: [
@@ -113,8 +113,8 @@ const MadrasaDB = (function() {
       timing: "Main Auditorium | Afternoon",
       instructor: "Convenor: Usthad Ibrahim",
       fee: "Meelad Entry",
-      capacity: 45,
-      enrolledCount: 32,
+      capacity: 100,
+      enrolledCount: 0,
       icon: "fa-user-graduate",
       description: "Elocution, song, calligraphy, and literary arts for Junior Boys.",
       subjects: [
@@ -141,8 +141,8 @@ const MadrasaDB = (function() {
       timing: "Hall 2 | Afternoon",
       instructor: "Convenor: Usthadh Khadeeja",
       fee: "Meelad Entry",
-      capacity: 45,
-      enrolledCount: 30,
+      capacity: 100,
+      enrolledCount: 0,
       icon: "fa-hands-praying",
       description: "Calligraphy, poetry, story writing, and crafting for Junior Girls.",
       subjects: [
@@ -164,8 +164,8 @@ const MadrasaDB = (function() {
       timing: "Grand Stage | Evening Session",
       instructor: "Convenor: Usthad Rashid",
       fee: "Meelad Entry",
-      capacity: 40,
-      enrolledCount: 28,
+      capacity: 100,
+      enrolledCount: 0,
       icon: "fa-award",
       description: "Senior elocution, poster design, essay, and classical songs.",
       subjects: [
@@ -192,8 +192,8 @@ const MadrasaDB = (function() {
       timing: "Hall 1 | Evening Session",
       instructor: "Convenor: Usthadh Zainab",
       fee: "Meelad Entry",
-      capacity: 40,
-      enrolledCount: 26,
+      capacity: 100,
+      enrolledCount: 0,
       icon: "fa-feather",
       description: "Senior girls digital poster, poem writing, painting, and Arabic calligraphy.",
       subjects: [
@@ -218,8 +218,8 @@ const MadrasaDB = (function() {
       timing: "Main Stage | Night Session",
       instructor: "Meelad General Committee",
       fee: "Meelad Entry",
-      capacity: 100,
-      enrolledCount: 75,
+      capacity: 150,
+      enrolledCount: 0,
       icon: "fa-users-line",
       description: "Flagship group recitations including Qawali, Burda, Nasheed, Maalappattu, and Sanga Gaanam.",
       subjects: [
@@ -243,7 +243,7 @@ const MadrasaDB = (function() {
       rsvpCount: 520,
       badge: "Meelad Fest",
       imageIcon: "fa-star-and-crescent",
-      description: "Grand Meelad competitions featuring Team Quaf, Team Noon, and Team Meelad in Kids, Sub Junior, Junior, Senior, and General divisions."
+      description: "Grand Meelad competitions featuring Team Quaf, Team Noon, and Team Meem across Kids, Sub Junior, Junior, Senior, and General divisions."
     },
     {
       id: "EVT-2026-MEELAD-02",
@@ -271,150 +271,195 @@ const MadrasaDB = (function() {
     }
   ];
 
-  const DEFAULT_STUDENTS = [
-    {
-      id: "ANS-2026-001",
-      name: "Muhammed Sinan",
-      team: "Quaf",
-      age: 15,
-      gender: "Male",
-      guardian: "Abdurahiman Andona",
-      email: "sinan.andona@example.com",
-      phone: "+91 98470 11111",
+  // Helper function to build student object
+  function makeStudent(idNum, name, team, gender, programId, age = 12) {
+    return {
+      id: "ANS-2026-" + String(idNum).padStart(3, '0'),
+      name: name,
+      team: team,
+      gender: gender,
+      age: age,
+      guardian: "Parent / Guardian",
+      email: name.toLowerCase().replace(/[^a-z0-9]/g, '.') + "@ansarululoom.edu",
+      phone: "+91 98470 " + String(Math.floor(10005 + Math.random() * 89990)),
       enrolledDate: "2026-01-10",
-      assignedPrograms: ["PRG-SENIOR-B", "PRG-GENERAL"],
+      assignedPrograms: [programId],
       status: "Active"
-    },
-    {
-      id: "ANS-2026-002",
-      name: "Fathima Rifa",
-      team: "Noon",
-      age: 14,
-      gender: "Female",
-      guardian: "Musthafa Thamarassery",
-      email: "rifa.t@example.com",
-      phone: "+91 98470 22222",
-      enrolledDate: "2026-01-12",
-      assignedPrograms: ["PRG-SENIOR-G", "PRG-GENERAL"],
-      status: "Active"
-    },
-    {
-      id: "ANS-2026-003",
-      name: "Muhammed Ameen",
-      team: "Meem",
-      age: 11,
-      gender: "Male",
-      guardian: "Moideen Andona",
-      email: "ameen.m@example.com",
-      phone: "+91 98470 33333",
-      enrolledDate: "2026-01-15",
-      assignedPrograms: ["PRG-JUNIOR-B"],
-      status: "Active"
-    },
-    {
-      id: "ANS-2026-004",
-      name: "Aisha Mehreen",
-      team: "Quaf",
-      age: 10,
-      gender: "Female",
-      guardian: "Usman Kozhikkode",
-      email: "mehreen.a@example.com",
-      phone: "+91 98470 44444",
-      enrolledDate: "2026-01-18",
-      assignedPrograms: ["PRG-JUNIOR-G"],
-      status: "Active"
-    },
-    {
-      id: "ANS-2026-005",
-      name: "Muhammed Yaseen",
-      team: "Noon",
-      age: 8,
-      gender: "Male",
-      guardian: "Hamza Andona",
-      email: "yaseen.h@example.com",
-      phone: "+91 98470 55555",
-      enrolledDate: "2026-02-01",
-      assignedPrograms: ["PRG-SUBJR-B"],
-      status: "Active"
-    },
-    {
-      id: "ANS-2026-006",
-      name: "Mariyam Zoya",
-      team: "Meem",
-      age: 6,
-      gender: "Female",
-      guardian: "Zakariya Thamarassery",
-      email: "zoya.z@example.com",
-      phone: "+91 98470 66666",
-      enrolledDate: "2026-02-05",
-      assignedPrograms: ["PRG-KIDS"],
-      status: "Active"
-    }
-  ];
+    };
+  }
 
+  // Raw Roster Input Processing
+  let idCounter = 1;
+  const rawStudents = [];
+
+  // --- TEAM MEEM ---
+  // Senior Boys
+  ["MUHAMMED FEZIN TM", "MUHAMMED ILAAN CV", "MUHAMMED FAIZ P.K", "MUHAMMED HADI VN"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Meem", "Male", "PRG-SENIOR-B", 16)));
+  // Junior Boys
+  ["MUHAMMED REZEEN PK", "MUHAMMED RABEEH NV", "JASIM MUHAMMED SHAH", "MUHAMMED MIDLAJ TC", "NUAMANUL HAK", "MUHAMMED SHABEEB VC", "MUHAMMED RAYAN K.K", "MUHAMMED RAFEEQ VC", "MUHAMMED NAEEM PC"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Meem", "Male", "PRG-JUNIOR-B", 14)));
+  // Sub Junior Boys
+  ["MUHAMMED ABUBAKAR TM", "MUHAMMED SAVAD MP", "HADI AMAN P", "MUHAMMED HANI TC", "MUHAMMED MIKDAD V.C", "AYMAN MUHIYUDHEEN SHAH", "BISHURUL HAFI PK", "MUHAMMED JAVAD VC", "MUHAMMED NIHAL P.K", "MUHAMMED ZAYAN V.T", "IRFAN MUHAMMED NV", "MUHAMMED MUZAMMIL NV"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Meem", "Male", "PRG-SUBJR-B", 11)));
+  // Kids Boys
+  ["BISHARUL HAFI V.C", "SHAFRAZ PK", "MUHAMMED RIZWAN TM"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Meem", "Male", "PRG-KIDS", 7)));
+  // Senior Girls
+  ["FATHIMA HANA KK", "RINSHA FATHIMA P.K", "FATHIMA SAFA PK", "MINHA FATHIMA K.T", "AYISHA FIDHA VN", "ZEDA FATHIMA", "NAJA FATHIMA PK", "FATHIMA ZAYAN NK", "SAHAREEM"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Meem", "Female", "PRG-SENIOR-G", 15)));
+  // Junior Girls
+  ["NOORA FATHIMA TM", "SAYYIDATH HUSNA SHAREEFA", "AYSHA ZAHRA NK", "FAIHA FATHIMA V.M", "FAIZA FATHIMA TM", "AYISHA ZANHA NK", "FATHIMA ZEHRA NV", "RAJA FATHIMA TK", "FATHIMA MEHARIN VT", "KHADEEJA NOORA"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Meem", "Female", "PRG-JUNIOR-G", 13)));
+  // Sub Junior Girls
+  ["NASHWA", "FINZA FATHIMA TM", "ALMIYA AAMIN", "IZZA NV", "KHAIRA AYMAN", "RIZA PK", "ISRA FATHIMA", "AYSHA JASRA", "NIMA FATHIMA", "SANA A.K", "FIDHA V.C", "AMANA", "AYISHA FATHIMA"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Meem", "Female", "PRG-SUBJR-G", 10)));
+  // Kids Girls
+  ["RAIZA P.K", "AIZA MEHRE", "FALHA FATHIMA"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Meem", "Female", "PRG-KIDS", 7)));
+
+  // --- TEAM NOON ---
+  // Senior Boys
+  ["MUHAMMED ASLAH VC", "MUHAMMED THAMEEM AM", "NAJAD V", "MUHAMMED RIZWAN VC", "MUHAMMED HISHAM VC", "MUHAMMED SINAN MP"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Noon", "Male", "PRG-SENIOR-B", 16)));
+  // Junior Boys
+  ["ALI MUHAMMED SHAH", "MUHAMMED IRFAN TT", "MHAMMED RAZVIN VC", "NUHMAN SHIBLY", "HADIL TC", "MUHAMMED RAYAN AP", "MUHAMMED RAYAN TM", "MUHAMMED HISAN VC", "LIYAN", "MUHAMMED RAZEEN MP", "HABEEBU RAHMAN"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Noon", "Male", "PRG-JUNIOR-B", 14)));
+  // Sub Junior Boys
+  ["AHMED KABEER", "MUHAMMED MISHAB NV", "HADI MUHAMMED", "SAYYID HIBATHULLA", "AFINTHAZ RAHMAN", "MUHAMMED NIDAL", "ABOO THWAHIR TM", "MUHAMMED AKMAL VC"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Noon", "Male", "PRG-SUBJR-B", 11)));
+  // Kids Boys
+  ["AHMED RAZI NV", "MUHAMMED ALFID VC", "AYDIN AYBAK", "ADAM MUHAMMED", "ARMAN UP"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Noon", "Male", "PRG-KIDS", 7)));
+  // Senior Girls
+  ["AYISHA HAMDA", "AYISHA FIDHA VN", "MINHA FATHIMA TK", "NAJA FATHIMA TC", "FATHIMA MEHERIN K", "SHAZANA TT", "HANA FATHIMA VC", "HANNA FATHIMA PK", "ANEEQA AJWA"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Noon", "Female", "PRG-SENIOR-G", 15)));
+  // Junior Girls
+  ["HAMNA ABDUL MAJEED", "AYISHA HINA PK", "ZIYA FATHIMA PK", "FABI THAMANNA", "FATHIMA HADIYA VC", "NAFLA FATHIMA", "FADI THANHA"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Noon", "Female", "PRG-JUNIOR-G", 13)));
+  // Sub Junior Girls
+  ["SAFA FATHIMA EC", "FATHIMA BATHOOL PK", "MEHARIN NAFEESA", "AYISHA HAMNA NV", "CHANDINI", "FATHIMA NIHA VC", "AYISHA ZAHRA AT", "AMINA HIMIYA", "MISRIYYA MAIMOONA", "RIFA FATHIMA EC", "AYISHA HAYA PK"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Noon", "Female", "PRG-SUBJR-G", 10)));
+  // Kids Girls
+  ["AYISHA LIYANA MK", "RAIFA FATHIMA KT", "LIYA FATHIMA PP", "FAIZA FATHIMA TM"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Noon", "Female", "PRG-KIDS", 6)));
+
+  // --- TEAM QUAF ---
+  // Senior Boys
+  ["MUHAMMED RIZWAN PK", "MUHAMMED SAFVAN TT", "MUHAMMED NAFI VT", "MUHAMMED ADIL VT", "MUHAMMED SHIHAN VC"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Quaf", "Male", "PRG-SENIOR-B", 16)));
+  // Junior Boys
+  ["MUHAMMED RISHAL VC", "MUHAMMED BISHR PP", "MUHAMMED HISAN VC", "ABDU RAHMAN VC", "MUHAMMED SHABAS PK", "MUHAMMED SAFNAS", "MUHAMMED AMJAD VC", "MUHAMMED INSAF PK", "MUHAMMED SHADIL PK"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Quaf", "Male", "PRG-JUNIOR-B", 14)));
+  // Sub Junior Boys
+  ["MUHAMMED AFLAH VC", "BISHRUL MUAD TM", "MUHAMMED MINHAJ VC 4", "MUHAMMEDIQDAD AK", "MUHAMMED AHNAS", "MUHAMMED MIQDAD PK", "MUHAMMED MINHAJ VC 3", "LEZIN MUHAMMED PK", "MUHAMMED AYDIN", "MUHAMMED ZAYAN PK", "RASVIN VC"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Quaf", "Male", "PRG-SUBJR-B", 11)));
+  // Kids Boys
+  ["MUHAMMED RIZWAN PK", "MUHAMMED AMEEN P", "MUHAMMED ZIDAN AC", "AMEEN K"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Quaf", "Male", "PRG-KIDS", 7)));
+  // Senior Girls
+  ["RANA KHADEEJA", "MASHIDA KK", "HANNA PK", "AYISHA REEM", "AYISHA NARJIS", "SHAHANA VC", "HIBA FATHIMA PK", "NOORA CV", "AMINA NAJA", "MEHARIN VC", "RIFA ZAINAB", "SANA PK"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Quaf", "Female", "PRG-SENIOR-G", 15)));
+  // Junior Girls
+  ["ZIYA FATHIMA MK", "BAHJA FATHIMA", "RAIHANA LUBABA", "RISHA MEHARIN PK", "FELLA MEHARIN VC", "AYISHA LUTHFIYA NV"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Quaf", "Female", "PRG-JUNIOR-G", 13)));
+  // Sub Junior Girls
+  ["SHALNA JAN", "NASHA AK", "BUSHRA LENA TT", "AZA MEHRISH", "FAIHA PK", "AYISHA BATHOOL PK", "HANA UP", "FATHIMA KM", "AYISHA IZZA VC", "RIZA PK"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Quaf", "Female", "PRG-SUBJR-G", 10)));
+  // Kids Girls
+  ["KHADEEJA LUBABA", "GAREEMA MEHAR", "IZZA VM", "RABIYATHUL ADAVIYYA", "FATHIMA RAIFA KT"]
+    .forEach(n => rawStudents.push(makeStudent(idCounter++, n, "Quaf", "Female", "PRG-KIDS", 7)));
+
+  const DEFAULT_STUDENTS = rawStudents;
+
+  // Default Initial Results Seeding for Team Leaderboard Points
   const DEFAULT_RESULTS = [
     {
       id: "RES-MEELAD-01",
-      studentId: "ANS-2026-001",
+      studentId: "ANS-2026-001", // MUHAMMED FEZIN TM (Team Meem)
       programId: "PRG-SENIOR-B",
       term: "Meelad Fest 2026",
       marks: [
         { subject: "MADH GAANAM", score: 98, max: 100 },
         { subject: "PRASANGAM MALAYALAM", score: 95, max: 100 },
-        { subject: "CALLIGRAPHY", score: 92, max: 100 },
         { subject: "MAPPILAPPATTU", score: 96, max: 100 }
       ],
-      totalPercentage: 95.2,
+      totalPercentage: 96.3,
       grade: "1st Rank (A+)",
       pointsAwarded: 40,
-      remarks: "1st Prize in Madh Gaanam & Prasangam. Scored 40 Championship Points for Team Quaf!"
+      remarks: "1st Prize in Senior Madh Gaanam & Prasangam. Scored 40 Championship Points for Team Meem!"
     },
     {
       id: "RES-MEELAD-02",
-      studentId: "ANS-2026-002",
-      programId: "PRG-SENIOR-G",
+      studentId: "ANS-2026-064", // MUHAMMED ASLAH VC (Team Noon)
+      programId: "PRG-SENIOR-B",
       term: "Meelad Fest 2026",
       marks: [
-        { subject: "CALLIGRAPHY", score: 97, max: 100 },
-        { subject: "E-POSTER", score: 94, max: 100 },
-        { subject: "KAVITHA RACHANA", score: 95, max: 100 },
-        { subject: "MADH GAANAM", score: 93, max: 100 }
+        { subject: "MADH GAANAM", score: 96, max: 100 },
+        { subject: "ARABIC GAANAM", score: 97, max: 100 },
+        { subject: "CALLIGRAPHY", score: 94, max: 100 }
       ],
-      totalPercentage: 94.7,
+      totalPercentage: 95.6,
       grade: "1st Rank (A+)",
-      pointsAwarded: 37,
-      remarks: "1st Prize in Calligraphy & E-Poster. Scored 37 Championship Points for Team Noon!"
+      pointsAwarded: 40,
+      remarks: "1st Prize in Arabic Gaanam. Scored 40 Championship Points for Team Noon!"
     },
     {
       id: "RES-MEELAD-03",
-      studentId: "ANS-2026-003",
-      programId: "PRG-JUNIOR-B",
+      studentId: "ANS-2026-104", // MUHAMMED RIZWAN PK (Team Quaf)
+      programId: "PRG-SENIOR-B",
       term: "Meelad Fest 2026",
       marks: [
-        { subject: "MADH GAANAM", score: 94, max: 100 },
-        { subject: "MAPPILAPPATTU", score: 92, max: 100 },
-        { subject: "CALLIGRAPHY", score: 90, max: 100 }
+        { subject: "SUDOKU", score: 99, max: 100 },
+        { subject: "QUIZ", score: 95, max: 100 },
+        { subject: "POSTER DESIGNING", score: 93, max: 100 }
       ],
-      totalPercentage: 92.0,
-      grade: "2nd Rank (A+)",
-      pointsAwarded: 32,
-      remarks: "2nd Prize in Junior Madh Gaanam. Scored 32 Championship Points for Team Meem!"
+      totalPercentage: 95.7,
+      grade: "1st Rank (A+)",
+      pointsAwarded: 40,
+      remarks: "1st Prize in Senior Sudoku & Quiz. Scored 40 Championship Points for Team Quaf!"
     },
     {
       id: "RES-MEELAD-04",
-      studentId: "ANS-2026-005",
-      programId: "PRG-SUBJR-B",
+      studentId: "ANS-2026-038", // FATHIMA HANA KK (Team Meem)
+      programId: "PRG-SENIOR-G",
       term: "Meelad Fest 2026",
       marks: [
-        { subject: "MADH GAANAM", score: 92, max: 100 },
-        { subject: "KHIRA’ATH", score: 90, max: 100 },
-        { subject: "HIF’L", score: 94, max: 100 },
-        { subject: "ARABIC BAITH", score: 88, max: 100 }
+        { subject: "CALLIGRAPHY", score: 98, max: 100 },
+        { subject: "E-POSTER", score: 96, max: 100 }
       ],
-      totalPercentage: 91.0,
+      totalPercentage: 97.0,
+      grade: "1st Rank (A+)",
+      pointsAwarded: 40,
+      remarks: "1st Prize in Calligraphy & E-Poster. Scored 40 Championship Points for Team Meem!"
+    },
+    {
+      id: "RES-MEELAD-05",
+      studentId: "ANS-2026-084", // AYISHA HAMDA (Team Noon)
+      programId: "PRG-SENIOR-G",
+      term: "Meelad Fest 2026",
+      marks: [
+        { subject: "PADAPAYATT", score: 95, max: 100 },
+        { subject: "HAND WRITING (ARABIC)", score: 94, max: 100 }
+      ],
+      totalPercentage: 94.5,
       grade: "1st Rank (A+)",
       pointsAwarded: 35,
-      remarks: "1st Prize in Sub-Junior Hif'l. Scored 35 Championship Points for Team Noon!"
+      remarks: "1st Prize in Padapayatt. Scored 35 Championship Points for Team Noon!"
+    },
+    {
+      id: "RES-MEELAD-06",
+      studentId: "ANS-2026-118", // RANA KHADEEJA (Team Quaf)
+      programId: "PRG-SENIOR-G",
+      term: "Meelad Fest 2026",
+      marks: [
+        { subject: "KAVITHA RACHANA", score: 96, max: 100 },
+        { subject: "PAINTING", score: 92, max: 100 }
+      ],
+      totalPercentage: 94.0,
+      grade: "1st Rank (A+)",
+      pointsAwarded: 35,
+      remarks: "1st Prize in Poem Writing. Scored 35 Championship Points for Team Quaf!"
     }
   ];
 
@@ -524,7 +569,7 @@ const MadrasaDB = (function() {
     },
     saveStudent(student) {
       const students = this.getStudents();
-      student.team = student.team || "Quaf"; // default team
+      student.team = student.team || "Quaf";
 
       if (student.id) {
         const idx = students.findIndex(s => s.id === student.id);
@@ -627,15 +672,15 @@ const MadrasaDB = (function() {
       return resultData;
     },
 
-    // Calculate Team Leaderboard Scores
+    // Calculate Team Leaderboard Scores from Real Roster
     getTeamStandings() {
       const students = this.getStudents();
       const results = this.getResults();
 
       const teamsData = [
-        { name: "Quaf", arabic: "ق", color: "emerald", points: 0, firstPrizes: 0, totalStudents: 0 },
+        { name: "Meem", arabic: "م", color: "amber", points: 0, firstPrizes: 0, totalStudents: 0 },
         { name: "Noon", arabic: "ن", color: "cyan", points: 0, firstPrizes: 0, totalStudents: 0 },
-        { name: "Meem", arabic: "م", color: "amber", points: 0, firstPrizes: 0, totalStudents: 0 }
+        { name: "Quaf", arabic: "ق", color: "emerald", points: 0, firstPrizes: 0, totalStudents: 0 }
       ];
 
       students.forEach(s => {
@@ -652,7 +697,6 @@ const MadrasaDB = (function() {
         }
       });
 
-      // Sort teams by points descending
       return teamsData.sort((a, b) => b.points - a.points);
     },
 
