@@ -1,5 +1,5 @@
 /**
- * Programs Component - Earth & Leaf Organic Grid matching Reference Image
+ * Programs Component - Earth & Leaf Organic Grid displaying ALL Meelad Contest Items
  */
 const ProgramsComponent = (function() {
   let currentCategory = 'All';
@@ -21,13 +21,13 @@ const ProgramsComponent = (function() {
             <div>
               <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-900/40 border border-emerald-700/50 text-organic-pillGold text-xs font-bold mb-3 shadow-md">
                 <i class="fa-solid fa-leaf text-amber-400"></i>
-                <span>Meelad Fest 2026 Categories</span>
+                <span>Meelad Fest 2026 Official Competitions</span>
               </div>
               <h2 class="text-3xl sm:text-5xl font-title font-extrabold text-organic-creamText">
-                Programs & Competitions
+                Meelad Programs & Contest Items
               </h2>
               <p class="mt-2 text-organic-muted text-sm sm:text-base max-w-2xl font-light">
-                Explore stage and off-stage competition divisions for Ansarul Uloom Madrasa, Andona, Thamarassery.
+                Complete list of all stage and off-stage competition items for Ansarul Uloom Madrasa, Andona, Thamarassery.
               </p>
             </div>
 
@@ -48,19 +48,19 @@ const ProgramsComponent = (function() {
             </div>
           </div>
 
-          <!-- Programs Grid matching Reference Image Cards (Green, Brown, Sand Cards) -->
+          <!-- Programs Grid matching Reference Image -->
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             ${filteredPrograms.map((program, idx) => {
-              // Alternate card themes: Card Green, Card Brown, Card Sand
               const cardClass = idx % 3 === 0 ? 'card-green' : idx % 3 === 1 ? 'card-brown' : 'card-sand';
               const pctEnrolled = Math.min(100, Math.round((program.enrolledCount / program.capacity) * 100));
               const isSand = cardClass === 'card-sand';
+              const subjects = program.subjects || [];
 
               return `
                 <div class="${cardClass} p-7 interactive-card flex flex-col justify-between relative overflow-hidden group">
                   <div>
                     <!-- Header Circular Icon Badge & Category Pill -->
-                    <div class="flex items-center justify-between gap-2 mb-6">
+                    <div class="flex items-center justify-between gap-2 mb-5">
                       <div class="badge-circle-icon">
                         <i class="fa-solid ${program.icon || 'fa-trophy'} text-xl"></i>
                       </div>
@@ -76,36 +76,35 @@ const ProgramsComponent = (function() {
                       ${NavbarComponent.escapeHTML(program.name)}
                     </h3>
 
-                    <p class="text-xs mt-3 line-clamp-2 leading-relaxed ${isSand ? 'text-[#4A382D]' : 'text-organic-muted'}">
+                    <p class="text-xs mt-2 line-clamp-2 leading-relaxed ${isSand ? 'text-[#4A382D]' : 'text-organic-muted'}">
                       ${NavbarComponent.escapeHTML(program.description)}
                     </p>
 
-                    <!-- Items / Events Included List Pills -->
+                    <!-- Contest Items Included List -->
                     <div class="mt-5">
-                      <span class="text-[10px] font-bold uppercase tracking-wider block mb-2 ${isSand ? 'text-[#6B4D3B]' : 'text-organic-pillGold'}">
-                        Events (${(program.subjects || []).length}):
-                      </span>
-                      <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
-                        ${(program.subjects || []).slice(0, 6).map(sub => `
+                      <div class="flex items-center justify-between mb-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider ${isSand ? 'text-[#6B4D3B]' : 'text-organic-pillGold'}">
+                          Contest Items (${subjects.length}):
+                        </span>
+                        <span class="text-[10px] ${isSand ? 'text-[#4A382D]' : 'text-organic-muted'} font-semibold">Stage & Off-Stage</span>
+                      </div>
+
+                      <div class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1">
+                        ${subjects.map(sub => `
                           <span class="px-2.5 py-1 rounded-lg text-[11px] font-semibold ${
-                            isSand ? 'bg-[#43291F]/15 text-[#372318] border border-[#43291F]/20' : 'bg-black/25 text-emerald-200 border border-white/10'
+                            isSand ? 'bg-[#43291F]/15 text-[#372318] border border-[#43291F]/20' : 'bg-black/30 text-emerald-200 border border-white/10'
                           }">
                             ${sub}
                           </span>
                         `).join('')}
-                        ${(program.subjects || []).length > 6 ? `
-                          <span class="px-2 py-1 rounded-lg text-[10px] font-bold ${isSand ? 'bg-[#43291F]/20 text-[#2B1D14]' : 'bg-amber-500/20 text-amber-300'}">
-                            +${(program.subjects || []).length - 6} More
-                          </span>
-                        ` : ''}
                       </div>
                     </div>
 
-                    <!-- Capacity / Participants Progress -->
+                    <!-- Contestants Enrolled Progress -->
                     <div class="mt-6">
                       <div class="flex items-center justify-between text-xs mb-1.5">
-                        <span class="${isSand ? 'text-[#5C4537]' : 'text-organic-muted'} font-medium">Registered Participants:</span>
-                        <span class="font-extrabold ${isSand ? 'text-[#2B1D14]' : 'text-organic-pillGold'}">${program.enrolledCount} / ${program.capacity}</span>
+                        <span class="${isSand ? 'text-[#5C4537]' : 'text-organic-muted'} font-medium">Registered Contestants:</span>
+                        <span class="font-extrabold ${isSand ? 'text-[#2B1D14]' : 'text-organic-pillGold'}">${program.enrolledCount} Students</span>
                       </div>
                       <div class="w-full h-2.5 ${isSand ? 'bg-black/15' : 'bg-black/40'} rounded-full overflow-hidden">
                         <div class="h-full ${isSand ? 'bg-[#43291F]' : 'bg-gradient-to-r from-emerald-400 to-amber-300'} rounded-full transition-all duration-500" style="width: ${pctEnrolled}%"></div>
@@ -116,7 +115,7 @@ const ProgramsComponent = (function() {
                   <!-- Card Action Footer -->
                   <div class="mt-8 pt-5 border-t ${isSand ? 'border-black/15' : 'border-white/10'} flex items-center justify-between gap-3">
                     <div class="text-xs">
-                      <span class="text-[10px] uppercase font-bold block ${isSand ? 'text-[#6B4D3B]' : 'text-organic-muted'}">Schedule</span>
+                      <span class="text-[10px] uppercase font-bold block ${isSand ? 'text-[#6B4D3B]' : 'text-organic-muted'}">Stage Timing</span>
                       <span class="font-bold ${isSand ? 'text-[#2B1D14]' : 'text-white'}">${program.timing.split('|')[0]}</span>
                     </div>
 
