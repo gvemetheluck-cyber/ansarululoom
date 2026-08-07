@@ -1,5 +1,5 @@
 /**
- * Navbar Component with Dedicated Judge Portal & Public Results Access
+ * Navbar Component - Centered Navigation (No Edit Name Button)
  */
 const NavbarComponent = (function() {
   function render(activeTab, onNavClick, onEditNameClick, onQuickEnroll, onLoginClick, onLogoutClick) {
@@ -12,7 +12,7 @@ const NavbarComponent = (function() {
       { id: 'home', label: 'Home', icon: 'fa-house' },
       { id: 'programs', label: 'Meelad Programs', icon: 'fa-list-check' },
       { id: 'events', label: 'Stage Schedule', icon: 'fa-calendar-days' },
-      { id: 'results', label: 'Results Portal', icon: 'fa-trophy', public: true }, // PUBLIC to everyone!
+      { id: 'results', label: 'Results Portal', icon: 'fa-trophy', public: true },
       { id: 'judge', label: 'Judge Portal', icon: 'fa-gavel', protected: true, badge: 'Judge Only' },
       { id: 'database', label: 'Student Records', icon: 'fa-database', protected: true, badge: 'Admin Only' }
     ];
@@ -22,36 +22,31 @@ const NavbarComponent = (function() {
 
     container.innerHTML = `
       <div class="glass-organic border-b border-emerald-800/40 px-4 lg:px-8 py-3.5 shadow-2xl transition-all duration-300">
-        <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between relative">
           
-          <!-- Brand Logo & Title -->
-          <div class="flex items-center gap-3.5 cursor-pointer group" id="brand-header-btn">
-            <div class="relative flex items-center justify-center w-11 h-11 rounded-full bg-gradient-to-br from-emerald-800 to-emerald-950 border border-emerald-600/50 text-organic-pillGold shadow-lg group-hover:scale-105 transition-transform duration-300">
-              <i class="fa-solid fa-leaf text-xl"></i>
-              <span class="absolute -top-0.5 -right-0.5 flex h-3 w-3">
+          <!-- Left: Brand Logo & Title (No Edit Button) -->
+          <div class="flex items-center gap-3 cursor-pointer group z-10" id="brand-header-btn">
+            <div class="relative flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-br from-emerald-800 to-emerald-950 border border-emerald-600/50 text-organic-pillGold shadow-lg group-hover:scale-105 transition-transform duration-300">
+              <i class="fa-solid fa-leaf text-lg sm:text-xl"></i>
+              <span class="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
               </span>
             </div>
             <div class="flex flex-col">
-              <div class="flex items-center gap-2">
-                <h1 id="navbar-madrasa-title" class="font-title font-extrabold text-lg md:text-xl text-organic-creamText tracking-wide group-hover:text-organic-pillGold transition-colors">
-                  ${escapeHTML(madrasaName)}
-                </h1>
-                <button id="edit-madrasa-name-btn" title="Edit Madrasa Name" class="text-xs text-organic-muted hover:text-amber-300 transition-colors p-1 rounded-full hover:bg-emerald-900/40 no-print">
-                  <i class="fa-solid fa-pen-to-square"></i>
-                </button>
-              </div>
-              <span class="text-xs text-organic-pillGold font-medium tracking-wider flex items-center gap-1">
-                <span>Andona, Thamarassery, Kozhikkode</span>
+              <h1 id="navbar-madrasa-title" class="font-title font-extrabold text-base sm:text-lg lg:text-xl text-organic-creamText tracking-wide group-hover:text-organic-pillGold transition-colors">
+                ${escapeHTML(madrasaName)}
+              </h1>
+              <span class="text-[11px] text-organic-pillGold font-medium tracking-wider flex items-center gap-1">
+                <span>Andona, Thamarassery</span>
                 <span class="text-emerald-700">•</span>
-                <span class="text-organic-muted">Meelad Fest 2026</span>
+                <span class="text-organic-muted">Meelad 2026</span>
               </span>
             </div>
           </div>
 
-          <!-- Desktop Nav Tabs -->
-          <nav class="hidden md:flex items-center gap-1 bg-[#0A2119] p-1.5 rounded-full border border-emerald-800/60 shadow-inner">
+          <!-- Center: Desktop Nav Tabs (PERFECTLY CENTERED) -->
+          <nav class="hidden md:flex items-center gap-1 bg-[#0A2119] p-1.5 rounded-full border border-emerald-800/60 shadow-inner absolute left-1/2 -translate-x-1/2 z-0">
             ${navItems.map(item => `
               <button 
                 data-tab="${item.id}" 
@@ -73,8 +68,8 @@ const NavbarComponent = (function() {
             `).join('')}
           </nav>
 
-          <!-- Auth & Action Buttons -->
-          <div class="hidden lg:flex items-center gap-3">
+          <!-- Right: Auth Actions -->
+          <div class="hidden lg:flex items-center gap-3 z-10">
             ${isAuthenticated ? `
               <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950 border border-emerald-700 text-xs text-emerald-300 font-bold">
                 <i class="fa-solid fa-user-check text-amber-400"></i>
@@ -94,7 +89,7 @@ const NavbarComponent = (function() {
           </div>
 
           <!-- Mobile Menu Button -->
-          <button id="mobile-menu-btn" class="md:hidden p-2.5 rounded-full bg-emerald-950 border border-emerald-800 text-organic-creamText">
+          <button id="mobile-menu-btn" class="md:hidden p-2.5 rounded-full bg-emerald-950 border border-emerald-800 text-organic-creamText z-10">
             <i class="fa-solid fa-bars text-lg"></i>
           </button>
         </div>
@@ -139,11 +134,6 @@ const NavbarComponent = (function() {
         onNavClick(btn.dataset.tab);
         document.getElementById('mobile-menu')?.classList.add('hidden');
       });
-    });
-
-    document.getElementById('edit-madrasa-name-btn')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      onEditNameClick();
     });
 
     document.getElementById('brand-header-btn')?.addEventListener('click', () => onNavClick('home'));
