@@ -1,7 +1,7 @@
 /**
  * Main Application Orchestrator & Router
  * Ansarul Uloom Madrasa, Andona, Thamarassery, Kozhikkode
- * Enhanced with Interactive Ambient Leaf Particles & Smooth Animations
+ * Clean Forms (No Parent/Guardian Fields)
  */
 (function() {
   let activeTab = 'home';
@@ -13,7 +13,6 @@
     EventsComponent.startCountdownTimer('2026-08-25T08:00:00');
   }
 
-  // --- AMBIENT ORGANIC LEAF & GLOW CANVAS ANIMATION ---
   function initOrganicCanvasAnimation() {
     const canvas = document.getElementById('organic-leaf-canvas');
     if (!canvas) return;
@@ -71,13 +70,11 @@
         ctx.rotate(p.rotation);
 
         if (p.isLeaf) {
-          // Draw Organic Leaf Particle
           ctx.beginPath();
           ctx.ellipse(0, 0, p.radius * 2.2, p.radius * 1.1, 0, 0, Math.PI * 2);
           ctx.fillStyle = p.color;
           ctx.fill();
         } else {
-          // Draw Soft Glowing Particle
           ctx.beginPath();
           ctx.arc(0, 0, p.radius, 0, Math.PI * 2);
           ctx.fillStyle = p.color;
@@ -151,7 +148,6 @@
       );
 
     } else if (activeTab === 'results') {
-      // PUBLIC ACCESS TO EVERYONE!
       main.innerHTML = ResultsComponent.render((studentId) => switchTab('judge'));
       ResultsComponent.attachEvents(
         (studentId) => switchTab('judge'),
@@ -525,6 +521,7 @@
     });
   }
 
+  // Registration Modal (No Guardian Field)
   function openAddStudentModal() {
     if (!MadrasaDB.isAuthenticated()) {
       openLoginModal('database');
@@ -580,19 +577,8 @@
             </div>
 
             <div>
-              <label class="block font-semibold text-organic-creamText mb-1">Guardian Name *</label>
-              <input type="text" id="add-guardian" required placeholder="e.g. Abdurahiman Andona" class="w-full px-4 py-2.5 rounded-full bg-emerald-950 border border-emerald-700 text-slate-100 focus:border-amber-400">
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
               <label class="block font-semibold text-organic-creamText mb-1">Contact Phone</label>
               <input type="text" id="add-phone" placeholder="+91 98470 00000" class="w-full px-4 py-2.5 rounded-full bg-emerald-950 border border-emerald-700 text-slate-100 focus:border-amber-400">
-            </div>
-            <div>
-              <label class="block font-semibold text-organic-creamText mb-1">Email (Optional)</label>
-              <input type="email" id="add-email" placeholder="student@example.com" class="w-full px-4 py-2.5 rounded-full bg-emerald-950 border border-emerald-700 text-slate-100 focus:border-amber-400">
             </div>
           </div>
 
@@ -626,15 +612,13 @@
         team: document.getElementById('add-team').value,
         age: parseInt(document.getElementById('add-age').value),
         gender: document.getElementById('add-gender').value,
-        guardian: document.getElementById('add-guardian').value.trim(),
         phone: document.getElementById('add-phone').value.trim(),
-        email: document.getElementById('add-email').value.trim(),
         assignedPrograms: selectedProgIds,
         status: 'Active'
       };
 
       const saved = MadrasaDB.saveStudent(newStudent);
-      showToast(`Registered ${saved.name} in Team ${saved.team}! (ID: ${saved.id})`, 'success');
+      showToast(`Registered ${saved.name} in Team ${saved.team}!`, 'success');
       closeModal();
       renderView();
     });
@@ -648,6 +632,7 @@
     }, 50);
   }
 
+  // Edit Student Profile Modal (No Guardian Field)
   function openEditStudentModal(studentId) {
     if (!MadrasaDB.isAuthenticated()) {
       openLoginModal('database');
@@ -665,7 +650,6 @@
             </div>
             <div>
               <h3 class="text-xl font-bold text-white">Edit Profile & Team: ${NavbarComponent.escapeHTML(s.name)}</h3>
-              <p class="text-xs text-organic-pillGold font-mono">Student ID: ${s.id}</p>
             </div>
           </div>
           <button class="close-modal-btn p-2 text-organic-muted hover:text-white rounded-full hover:bg-emerald-900/40">
@@ -692,11 +676,18 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block font-semibold text-organic-creamText mb-1">Guardian Name</label>
-              <input type="text" id="edit-guardian" value="${NavbarComponent.escapeHTML(s.guardian)}" required class="w-full px-4 py-2.5 rounded-full bg-emerald-950 border border-emerald-700 text-slate-100">
+              <label class="block font-semibold text-organic-creamText mb-1">Age / Gender</label>
+              <div class="flex gap-2">
+                <input type="number" id="edit-age" value="${s.age || 12}" min="4" max="80" class="w-1/2 px-4 py-2.5 rounded-full bg-emerald-950 border border-emerald-700 text-slate-100">
+                <select id="edit-gender" class="w-1/2 px-4 py-2.5 rounded-full bg-emerald-950 border border-emerald-700 text-slate-100">
+                  <option value="Male" ${s.gender==='Male'?'selected':''}>Male</option>
+                  <option value="Female" ${s.gender==='Female'?'selected':''}>Female</option>
+                </select>
+              </div>
             </div>
+
             <div>
-              <label class="block font-semibold text-organic-creamText mb-1">Phone</label>
+              <label class="block font-semibold text-organic-creamText mb-1">Phone Contact</label>
               <input type="text" id="edit-phone" value="${NavbarComponent.escapeHTML(s.phone || '')}" class="w-full px-4 py-2.5 rounded-full bg-emerald-950 border border-emerald-700 text-slate-100">
             </div>
           </div>
@@ -713,7 +704,8 @@
       e.preventDefault();
       s.name = document.getElementById('edit-name').value.trim();
       s.team = document.getElementById('edit-team').value;
-      s.guardian = document.getElementById('edit-guardian').value.trim();
+      s.age = parseInt(document.getElementById('edit-age').value);
+      s.gender = document.getElementById('edit-gender').value;
       s.phone = document.getElementById('edit-phone').value.trim();
 
       MadrasaDB.saveStudent(s);
@@ -741,7 +733,7 @@
             </div>
             <div>
               <h3 class="text-xl font-bold text-white">Assign Categories: ${NavbarComponent.escapeHTML(s.name)}</h3>
-              <p class="text-xs text-organic-muted">Student ID: <span class="font-mono text-organic-pillGold">${s.id}</span> | Team: <strong>${s.team || 'Quaf'}</strong></p>
+              <p class="text-xs text-organic-muted">Team: <strong>Team ${s.team || 'Quaf'}</strong></p>
             </div>
           </div>
           <button class="close-modal-btn p-2 text-organic-muted hover:text-white rounded-full hover:bg-emerald-900/40">
@@ -862,7 +854,7 @@
       return;
     }
     MadrasaDB.deleteStudent(studentId);
-    showToast(`Deleted record for student ${studentId}`, 'error');
+    showToast(`Deleted record for student`, 'error');
     renderView();
   }
 

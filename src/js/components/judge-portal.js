@@ -1,5 +1,5 @@
 /**
- * Dedicated Judge Portal Component - Clean View (Without Student IDs)
+ * Dedicated Judge Portal Component - Clean View (No Guardian Name)
  */
 const JudgePortalComponent = (function() {
   let selectedProgramId = 'PRG-SENIOR-B';
@@ -87,7 +87,7 @@ const JudgePortalComponent = (function() {
                   <select id="judge-student-id" class="w-full px-4 py-3 rounded-full bg-emerald-950 border border-emerald-700 text-organic-pillGold font-bold focus:outline-none focus:border-amber-400">
                     ${displayStudents.map(s => `
                       <option value="${s.id}">
-                        ${s.name} — Team ${s.team || 'Quaf'} (${s.guardian || 'Parent'})
+                        ${s.name} — Team ${s.team || 'Quaf'}
                       </option>
                     `).join('')}
                   </select>

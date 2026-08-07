@@ -1,5 +1,5 @@
 /**
- * Student Database Table Component - Clean View (Without Student IDs)
+ * Student Database Table Component - Clean View (No Guardian Name)
  */
 const StudentDBComponent = (function() {
   let searchKeyword = '';
@@ -12,10 +12,7 @@ const StudentDBComponent = (function() {
     let filtered = students;
     if (searchKeyword.trim()) {
       const kw = searchKeyword.toLowerCase();
-      filtered = filtered.filter(s => 
-        s.name.toLowerCase().includes(kw) || 
-        (s.guardian && s.guardian.toLowerCase().includes(kw))
-      );
+      filtered = filtered.filter(s => s.name.toLowerCase().includes(kw));
     }
 
     if (selectedTeamFilter !== 'All') {
@@ -60,7 +57,7 @@ const StudentDBComponent = (function() {
               <input 
                 type="text" 
                 id="student-search-input"
-                placeholder="Search contestant by name or guardian..." 
+                placeholder="Search contestant by name..." 
                 value="${NavbarComponent.escapeHTML(searchKeyword)}"
                 class="w-full pl-11 pr-4 py-3 rounded-full bg-emerald-950/90 border border-emerald-700/80 text-organic-creamText placeholder-organic-muted text-xs focus:outline-none focus:border-amber-400"
               >
@@ -78,7 +75,7 @@ const StudentDBComponent = (function() {
             </div>
           </div>
 
-          <!-- Students Data Table (Without Student IDs) -->
+          <!-- Students Data Table (No Guardian Column) -->
           <div class="card-green rounded-4xl border-emerald-700/60 shadow-2xl overflow-hidden">
             <div class="overflow-x-auto">
               <table class="w-full text-left text-xs">
@@ -87,7 +84,6 @@ const StudentDBComponent = (function() {
                     <th class="py-4 px-6">Contestant Student Name</th>
                     <th class="py-4 px-6">Meelad Team</th>
                     <th class="py-4 px-6">Gender / Age</th>
-                    <th class="py-4 px-6">Guardian Name</th>
                     <th class="py-4 px-6">Assigned Divisions</th>
                     <th class="py-4 px-6 text-right">Actions</th>
                   </tr>
@@ -95,7 +91,7 @@ const StudentDBComponent = (function() {
                 <tbody class="divide-y divide-emerald-800/50">
                   ${filtered.length === 0 ? `
                     <tr>
-                      <td colspan="6" class="py-12 text-center text-organic-muted">
+                      <td colspan="5" class="py-12 text-center text-organic-muted">
                         <i class="fa-solid fa-user-slash text-3xl mb-2 block text-emerald-600"></i>
                         <span>No contestant records matched your search filter.</span>
                       </td>
@@ -141,11 +137,6 @@ const StudentDBComponent = (function() {
                         <td class="py-4 px-6 text-slate-200">
                           <span class="font-semibold">${student.gender || 'Male'}</span>
                           <span class="text-organic-muted text-[11px]"> (${student.age || 12} yrs)</span>
-                        </td>
-
-                        <!-- Guardian -->
-                        <td class="py-4 px-6 text-slate-300 font-medium">
-                          ${NavbarComponent.escapeHTML(student.guardian || 'Parent')}
                         </td>
 
                         <!-- Assigned Divisions -->

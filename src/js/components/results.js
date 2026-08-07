@@ -1,12 +1,11 @@
 /**
- * Results & Transcripts Portal Component - Search by Student Name (No Student IDs)
+ * Results & Transcripts Portal Component - Clean View (No Guardian Name)
  */
 const ResultsComponent = (function() {
   let searchedStudentName = '';
 
   function render(onOpenJudgePortal) {
     const students = MadrasaDB.getStudents();
-    // Default to first student if no search active
     const selectedStudent = searchedStudentName 
       ? students.find(s => s.name.toLowerCase().includes(searchedStudentName.toLowerCase())) || students[0]
       : students[0];
@@ -88,7 +87,7 @@ const ResultsComponent = (function() {
             </div>
           </div>
 
-          <!-- Official Transcript Card -->
+          <!-- Official Transcript Card (No Guardian Display) -->
           ${selectedStudent ? `
             <div class="print-area card-green rounded-4xl p-6 sm:p-10 border-emerald-700/60 shadow-2xl relative overflow-hidden">
               
@@ -119,7 +118,7 @@ const ResultsComponent = (function() {
               </div>
 
               <!-- Student Profile Summary & Team Badge -->
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-5 rounded-3xl bg-emerald-950/90 border border-emerald-800 mb-8 text-xs">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-5 rounded-3xl bg-emerald-950/90 border border-emerald-800 mb-8 text-xs">
                 <div>
                   <span class="text-organic-muted block text-[10px] uppercase font-bold">Contestant Student Name</span>
                   <span class="font-extrabold text-white text-base">${NavbarComponent.escapeHTML(selectedStudent.name)}</span>
@@ -135,11 +134,6 @@ const ResultsComponent = (function() {
                     <span class="font-arabic text-sm">${isQuaf ? 'ق' : isNoon ? 'ن' : 'م'}</span>
                     <span>Team ${teamName}</span>
                   </span>
-                </div>
-
-                <div>
-                  <span class="text-organic-muted block text-[10px] uppercase font-bold">Guardian</span>
-                  <span class="font-semibold text-slate-200 text-sm block mt-0.5">${NavbarComponent.escapeHTML(selectedStudent.guardian)}</span>
                 </div>
               </div>
 
