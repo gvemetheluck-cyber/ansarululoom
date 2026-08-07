@@ -1,14 +1,98 @@
 /**
  * Main Application Orchestrator & Router
  * Ansarul Uloom Madrasa, Andona, Thamarassery, Kozhikkode
- * Includes Dedicated Judge Portal & Public Results Access
+ * Enhanced with Interactive Ambient Leaf Particles & Smooth Animations
  */
 (function() {
   let activeTab = 'home';
+  let mousePos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 
   function initApp() {
+    initOrganicCanvasAnimation();
     renderView();
     EventsComponent.startCountdownTimer('2026-08-25T08:00:00');
+  }
+
+  // --- AMBIENT ORGANIC LEAF & GLOW CANVAS ANIMATION ---
+  function initOrganicCanvasAnimation() {
+    const canvas = document.getElementById('organic-leaf-canvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      mousePos.x = e.clientX;
+      mousePos.y = e.clientY;
+    });
+
+    const particles = [];
+    const particleCount = Math.min(45, Math.floor(width / 30));
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 4 + 2,
+        color: i % 3 === 0 ? 'rgba(230, 197, 148, ' + (Math.random() * 0.4 + 0.15) + ')' :
+               i % 3 === 1 ? 'rgba(45, 106, 79, ' + (Math.random() * 0.5 + 0.2) + ')' :
+                             'rgba(163, 177, 138, ' + (Math.random() * 0.4 + 0.15) + ')',
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: -Math.random() * 0.7 - 0.2,
+        rotation: Math.random() * Math.PI * 2,
+        vRot: (Math.random() - 0.5) * 0.02,
+        isLeaf: i % 2 === 0
+      });
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+
+      particles.forEach(p => {
+        p.x += p.vx + (mousePos.x - width / 2) * 0.00005;
+        p.y += p.vy;
+        p.rotation += p.vRot;
+
+        if (p.y < -20) {
+          p.y = height + 20;
+          p.x = Math.random() * width;
+        }
+        if (p.x < -20) p.x = width + 20;
+        if (p.x > width + 20) p.x = -20;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation);
+
+        if (p.isLeaf) {
+          // Draw Organic Leaf Particle
+          ctx.beginPath();
+          ctx.ellipse(0, 0, p.radius * 2.2, p.radius * 1.1, 0, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.fill();
+        } else {
+          // Draw Soft Glowing Particle
+          ctx.beginPath();
+          ctx.arc(0, 0, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.shadowBlur = 12;
+          ctx.shadowColor = p.color;
+          ctx.fill();
+        }
+
+        ctx.restore();
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
   }
 
   function renderView() {
@@ -75,7 +159,6 @@
       );
 
     } else if (activeTab === 'judge') {
-      // Protected Judge Check
       if (!MadrasaDB.isAuthenticated()) {
         openLoginModal('judge');
         return;
@@ -88,7 +171,6 @@
       );
 
     } else if (activeTab === 'database') {
-      // Protected Admin Check
       if (!MadrasaDB.isAuthenticated()) {
         openLoginModal('database');
         return;
@@ -114,7 +196,6 @@
   }
 
   function switchTab(tab) {
-    // Intercept protected tabs if not logged in
     if ((tab === 'judge' || tab === 'database') && !MadrasaDB.isAuthenticated()) {
       openLoginModal(tab);
       return;
@@ -185,7 +266,7 @@
       <div class="p-6 sm:p-8">
         <div class="flex items-center justify-between pb-4 border-b border-emerald-800/80">
           <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-full bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-400 text-2xl shadow-lg">
+            <div class="w-12 h-12 rounded-full bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-400 text-2xl shadow-lg animate-pulse-glow">
               <i class="fa-solid fa-gavel"></i>
             </div>
             <div>
@@ -239,7 +320,6 @@
             </div>
           </div>
 
-          <!-- Credential Hint -->
           <div class="p-3.5 rounded-2xl bg-emerald-950 border border-emerald-800 text-[11px] text-organic-muted space-y-1">
             <div class="font-bold text-amber-300 flex items-center gap-1.5">
               <i class="fa-solid fa-shield-halved"></i> Login Credentials:
