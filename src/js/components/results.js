@@ -1,14 +1,19 @@
 /**
- * Results & Transcripts Portal Component with Team Badges (Quaf, Noon, Meem)
+ * Results & Transcripts Portal Component - Search by Student Name (No Student IDs)
  */
 const ResultsComponent = (function() {
-  let searchedId = 'ANS-2026-001'; // Default demo student
+  let searchedStudentName = '';
 
-  function render(onOpenMarksModal) {
-    const student = MadrasaDB.getStudentById(searchedId);
-    const results = student ? MadrasaDB.getStudentResults(student.id) : [];
+  function render(onOpenJudgePortal) {
+    const students = MadrasaDB.getStudents();
+    // Default to first student if no search active
+    const selectedStudent = searchedStudentName 
+      ? students.find(s => s.name.toLowerCase().includes(searchedStudentName.toLowerCase())) || students[0]
+      : students[0];
+
+    const results = selectedStudent ? MadrasaDB.getStudentResults(selectedStudent.id) : [];
     const settings = MadrasaDB.getSettings();
-    const teamName = student ? (student.team || 'Quaf') : 'Quaf';
+    const teamName = selectedStudent ? (selectedStudent.team || 'Quaf') : 'Quaf';
     const isQuaf = teamName === 'Quaf';
     const isNoon = teamName === 'Noon';
 
@@ -27,61 +32,64 @@ const ResultsComponent = (function() {
                 Student & Team Results Portal
               </h2>
               <p class="mt-1 text-organic-muted text-sm max-w-xl">
-                Enter your Student Roll ID to generate your verified Meelad Fest transcript, category scores, and team championship points.
+                Search contestant name to view verified Meelad Fest transcripts, category scores, and team championship points.
               </p>
             </div>
 
             <button 
-              id="results-log-marks-btn"
+              id="results-judge-login-btn"
               class="btn-pill-gold px-6 py-3 text-xs font-bold flex items-center gap-2 shadow-lg"
             >
-              <i class="fa-solid fa-pen-nib text-organic-darkText"></i>
-              <span>Input Contest Scores (Admin)</span>
+              <i class="fa-solid fa-gavel text-organic-darkText"></i>
+              <span>Judge Portal</span>
             </button>
           </div>
 
-          <!-- Student Search Bar -->
+          <!-- Student Name Search Bar & Quick Selector -->
           <div class="card-green rounded-3xl p-6 mb-8 shadow-xl">
             <label class="block text-xs font-extrabold uppercase tracking-wider text-organic-pillGold mb-2">
-              <i class="fa-solid fa-id-card mr-1.5"></i> Enter Student ID Number:
+              <i class="fa-solid fa-user-check mr-1.5"></i> Select or Search Student Name:
             </label>
             <div class="flex flex-col sm:flex-row items-center gap-3">
               <div class="relative w-full">
-                <i class="fa-solid fa-barcode absolute left-4 top-1/2 -translate-y-1/2 text-organic-muted text-base"></i>
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-organic-muted text-sm"></i>
                 <input 
                   type="text" 
                   id="results-search-input"
-                  placeholder="e.g. ANS-2026-001" 
-                  value="${NavbarComponent.escapeHTML(searchedId)}"
-                  class="w-full pl-11 pr-4 py-3.5 rounded-full bg-emerald-950/90 border border-amber-500/50 text-organic-pillGold font-mono text-sm font-bold placeholder-organic-muted focus:outline-none focus:border-amber-400"
+                  placeholder="Type student name (e.g. Muhammed Fezin)..." 
+                  value="${NavbarComponent.escapeHTML(searchedStudentName)}"
+                  class="w-full pl-11 pr-4 py-3.5 rounded-full bg-emerald-950/90 border border-amber-500/50 text-organic-pillGold text-sm font-bold placeholder-organic-muted focus:outline-none focus:border-amber-400"
                 >
               </div>
 
-              <button 
-                id="results-search-btn"
-                class="btn-pill-gold w-full sm:w-auto px-8 py-3.5 text-xs font-bold flex items-center justify-center gap-2 whitespace-nowrap"
+              <select 
+                id="results-student-dropdown" 
+                class="w-full sm:w-auto px-6 py-3.5 rounded-full bg-emerald-950 border border-emerald-700 text-organic-pillGold font-bold text-xs focus:outline-none"
               >
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <span>Fetch Transcript</span>
-              </button>
+                ${students.map(s => `
+                  <option value="${NavbarComponent.escapeHTML(s.name)}" ${selectedStudent && s.name === selectedStudent.name ? 'selected' : ''}>
+                    ${s.name} (Team ${s.team || 'Quaf'})
+                  </option>
+                `).join('')}
+              </select>
             </div>
 
-            <!-- Quick Demo Selectors -->
+            <!-- Quick Team Filter Buttons -->
             <div class="mt-4 flex flex-wrap items-center gap-2 text-xs">
-              <span class="text-organic-muted font-bold">Quick Test Roll IDs:</span>
-              ${MadrasaDB.getStudents().slice(0, 6).map(s => `
+              <span class="text-organic-muted font-bold">Quick Contestants:</span>
+              ${students.slice(0, 7).map(s => `
                 <button 
-                  data-quick-id="${s.id}" 
-                  class="quick-id-btn px-3 py-1 rounded-full bg-emerald-950 hover:bg-emerald-900 border border-emerald-700/60 text-organic-pillGold text-[11px] font-mono font-bold transition-colors"
+                  data-quick-name="${NavbarComponent.escapeHTML(s.name)}" 
+                  class="quick-name-btn px-3.5 py-1.5 rounded-full bg-emerald-950 hover:bg-emerald-900 border border-emerald-700/60 text-organic-pillGold text-xs font-bold transition-colors"
                 >
-                  ${s.id} (${s.name.split(' ')[0]} - ${s.team || 'Quaf'})
+                  ${s.name} (${s.team || 'Quaf'})
                 </button>
               `).join('')}
             </div>
           </div>
 
           <!-- Official Transcript Card -->
-          ${student ? `
+          ${selectedStudent ? `
             <div class="print-area card-green rounded-4xl p-6 sm:p-10 border-emerald-700/60 shadow-2xl relative overflow-hidden">
               
               <!-- Header -->
@@ -111,15 +119,15 @@ const ResultsComponent = (function() {
               </div>
 
               <!-- Student Profile Summary & Team Badge -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 p-5 rounded-3xl bg-emerald-950/90 border border-emerald-800 mb-8 text-xs">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-5 rounded-3xl bg-emerald-950/90 border border-emerald-800 mb-8 text-xs">
                 <div>
-                  <span class="text-organic-muted block text-[10px] uppercase font-bold">Contestant Name</span>
-                  <span class="font-extrabold text-white text-sm">${NavbarComponent.escapeHTML(student.name)}</span>
+                  <span class="text-organic-muted block text-[10px] uppercase font-bold">Contestant Student Name</span>
+                  <span class="font-extrabold text-white text-base">${NavbarComponent.escapeHTML(selectedStudent.name)}</span>
                 </div>
 
                 <div>
                   <span class="text-organic-muted block text-[10px] uppercase font-bold">Meelad Team</span>
-                  <span class="px-3 py-1 rounded-full text-xs font-extrabold inline-flex items-center gap-1.5 mt-0.5 ${
+                  <span class="px-3.5 py-1 rounded-full text-xs font-extrabold inline-flex items-center gap-1.5 mt-1 ${
                     isQuaf ? 'bg-emerald-900 text-emerald-200 border border-emerald-600' :
                     isNoon ? 'bg-cyan-950 text-cyan-300 border border-cyan-700' :
                     'bg-amber-950 text-amber-300 border border-amber-700'
@@ -130,13 +138,8 @@ const ResultsComponent = (function() {
                 </div>
 
                 <div>
-                  <span class="text-organic-muted block text-[10px] uppercase font-bold">Student Roll ID</span>
-                  <span class="font-bold text-organic-pillGold font-mono text-sm">${student.id}</span>
-                </div>
-
-                <div>
                   <span class="text-organic-muted block text-[10px] uppercase font-bold">Guardian</span>
-                  <span class="font-semibold text-slate-200">${NavbarComponent.escapeHTML(student.guardian)}</span>
+                  <span class="font-semibold text-slate-200 text-sm block mt-0.5">${NavbarComponent.escapeHTML(selectedStudent.guardian)}</span>
                 </div>
               </div>
 
@@ -144,8 +147,8 @@ const ResultsComponent = (function() {
               ${results.length === 0 ? `
                 <div class="py-12 text-center text-organic-muted">
                   <i class="fa-solid fa-file-pen text-4xl mb-3 block text-emerald-600"></i>
-                  <p class="font-bold text-white">No recorded contest scores found for this student yet.</p>
-                  <p class="text-xs text-organic-muted mt-1">Use the "Input Contest Scores" button above to enter score items.</p>
+                  <p class="font-bold text-white">No recorded contest scores found for ${NavbarComponent.escapeHTML(selectedStudent.name)} yet.</p>
+                  <p class="text-xs text-organic-muted mt-1">Judges will log evaluation scores during stage proceedings.</p>
                 </div>
               ` : results.map(res => {
                 const program = MadrasaDB.getProgramById(res.programId);
@@ -229,7 +232,7 @@ const ResultsComponent = (function() {
             <div class="card-green p-12 rounded-3xl text-center">
               <i class="fa-solid fa-user-slash text-4xl text-emerald-600 mb-3 block"></i>
               <h3 class="text-xl font-bold text-white">Student Record Not Found</h3>
-              <p class="text-sm text-organic-muted mt-1">Please check the Roll ID number and try again.</p>
+              <p class="text-sm text-organic-muted mt-1">Please check the student name and try again.</p>
             </div>
           `}
 
@@ -238,27 +241,28 @@ const ResultsComponent = (function() {
     `;
   }
 
-  function attachEvents(onOpenMarksModal, onSearch) {
+  function attachEvents(onOpenJudgePortal, onSearch) {
     const input = document.getElementById('results-search-input');
-    const searchBtn = document.getElementById('results-search-btn');
+    const dropdown = document.getElementById('results-student-dropdown');
 
-    searchBtn?.addEventListener('click', () => {
-      if (input && input.value.trim()) {
-        searchedId = input.value.trim();
-        onSearch();
-      }
+    input?.addEventListener('input', (e) => {
+      searchedStudentName = e.target.value.trim();
+      onSearch();
     });
 
-    document.querySelectorAll('.quick-id-btn').forEach(btn => {
+    dropdown?.addEventListener('change', (e) => {
+      searchedStudentName = e.target.value;
+      onSearch();
+    });
+
+    document.querySelectorAll('.quick-name-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        searchedId = btn.dataset.quickId;
+        searchedStudentName = btn.dataset.quickName;
         onSearch();
       });
     });
 
-    document.getElementById('results-log-marks-btn')?.addEventListener('click', () => {
-      onOpenMarksModal(searchedId);
-    });
+    document.getElementById('results-judge-login-btn')?.addEventListener('click', onOpenJudgePortal);
 
     document.getElementById('print-transcript-btn')?.addEventListener('click', () => {
       window.print();

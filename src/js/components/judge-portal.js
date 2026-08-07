@@ -1,5 +1,5 @@
 /**
- * Dedicated Judge Portal Component - Ansarul Uloom Madrasa Meelad Fest
+ * Dedicated Judge Portal Component - Clean View (Without Student IDs)
  */
 const JudgePortalComponent = (function() {
   let selectedProgramId = 'PRG-SENIOR-B';
@@ -12,7 +12,6 @@ const JudgePortalComponent = (function() {
     const results = MadrasaDB.getResults();
     const selectedProgram = MadrasaDB.getProgramById(selectedProgramId) || programs[0];
 
-    // Filter students assigned to this program or all students
     const programStudents = students.filter(s => 
       s.assignedPrograms && s.assignedPrograms.includes(selectedProgramId)
     );
@@ -25,7 +24,7 @@ const JudgePortalComponent = (function() {
           <!-- Portal Header -->
           <div class="card-green rounded-3xl p-6 sm:p-8 mb-8 border-emerald-700/60 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
             <div class="flex items-center gap-4">
-              <div class="w-14 h-14 rounded-full bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300 text-2xl shadow-lg">
+              <div class="w-14 h-14 rounded-full bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300 text-2xl shadow-lg animate-pulse-glow">
                 <i class="fa-solid fa-gavel"></i>
               </div>
               <div>
@@ -57,7 +56,7 @@ const JudgePortalComponent = (function() {
                 <i class="fa-solid fa-pen-nib text-organic-pillGold"></i>
                 <span>Evaluate Contestant Performance</span>
               </h3>
-              <p class="text-xs text-organic-muted mb-6">Select division, pick contestant, enter item score, and submit evaluation.</p>
+              <p class="text-xs text-organic-muted mb-6">Select division, pick contestant by name, enter item score, and submit evaluation.</p>
 
               <form id="judge-score-form" class="space-y-4 text-xs">
                 <!-- Select Competition Division -->
@@ -82,13 +81,13 @@ const JudgePortalComponent = (function() {
                   </select>
                 </div>
 
-                <!-- Select Contestant Student -->
+                <!-- Select Contestant Student by Name -->
                 <div>
                   <label class="block font-bold text-organic-creamText mb-1.5">3. Select Contestant Student *</label>
                   <select id="judge-student-id" class="w-full px-4 py-3 rounded-full bg-emerald-950 border border-emerald-700 text-organic-pillGold font-bold focus:outline-none focus:border-amber-400">
                     ${displayStudents.map(s => `
                       <option value="${s.id}">
-                        ${s.name} (${s.id}) — Team ${s.team || 'Quaf'}
+                        ${s.name} — Team ${s.team || 'Quaf'} (${s.guardian || 'Parent'})
                       </option>
                     `).join('')}
                   </select>
@@ -130,7 +129,7 @@ const JudgePortalComponent = (function() {
                   <textarea 
                     id="judge-remarks" 
                     rows="2" 
-                    placeholder="Excellent voice modulation, flawless articulation and pronunciation..." 
+                    placeholder="Flawless recitation, excellent vocal clarity and stage presence..." 
                     class="w-full px-4 py-3 rounded-2xl bg-emerald-950 border border-emerald-700 text-slate-200 focus:outline-none focus:border-amber-400"
                   ></textarea>
                 </div>
@@ -171,7 +170,7 @@ const JudgePortalComponent = (function() {
                       <div class="p-4 rounded-2xl bg-emerald-950/90 border border-emerald-800 flex items-center justify-between gap-3">
                         <div>
                           <div class="flex items-center gap-2">
-                            <span class="font-bold text-white text-xs">${student ? student.name : res.studentId}</span>
+                            <span class="font-bold text-white text-xs">${student ? student.name : 'Student'}</span>
                             <span class="px-2 py-0.2 rounded-full text-[10px] font-bold ${
                               isQuaf ? 'bg-emerald-900 text-emerald-200 border border-emerald-600' :
                               isNoon ? 'bg-cyan-950 text-cyan-300 border border-cyan-700' :
