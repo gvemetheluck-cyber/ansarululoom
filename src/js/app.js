@@ -539,7 +539,7 @@
             </div>
             <div>
               <h3 class="text-xl font-bold text-white">Register Student & Assign Team</h3>
-              <p class="text-xs text-organic-muted">Add contestant details and select Team Quaf (ق), Team Noon (ن), or Team Meem (م).</p>
+              <p class="text-xs text-organic-muted">Add contestant details and select Team Quaf, Team Noon, or Team Meem.</p>
             </div>
           </div>
           <button class="close-modal-btn p-2 text-organic-muted hover:text-white rounded-full hover:bg-emerald-900/40">
@@ -557,9 +557,9 @@
             <div>
               <label class="block font-semibold text-organic-pillGold mb-1">Select Meelad Team *</label>
               <select id="add-team" class="w-full px-4 py-2.5 rounded-full bg-emerald-950 border border-amber-500/60 text-amber-300 font-bold">
-                <option value="Quaf">Team Quaf (ق)</option>
-                <option value="Noon">Team Noon (ن)</option>
-                <option value="Meem">Team Meem (م)</option>
+                <option value="Quaf">Team Quaf</option>
+                <option value="Noon">Team Noon</option>
+                <option value="Meem">Team Meem</option>
               </select>
             </div>
           </div>
@@ -667,9 +667,9 @@
             <div>
               <label class="block font-semibold text-organic-pillGold mb-1">Meelad Team Assignment</label>
               <select id="edit-team" class="w-full px-4 py-2.5 rounded-full bg-emerald-950 border border-amber-500/60 text-amber-300 font-bold">
-                <option value="Quaf" ${s.team==='Quaf'?'selected':''}>Team Quaf (ق)</option>
-                <option value="Noon" ${s.team==='Noon'?'selected':''}>Team Noon (ن)</option>
-                <option value="Meem" ${s.team==='Meem'?'selected':''}>Team Meem (م)</option>
+                <option value="Quaf" ${s.team==='Quaf'?'selected':''}>Team Quaf</option>
+                <option value="Noon" ${s.team==='Noon'?'selected':''}>Team Noon</option>
+                <option value="Meem" ${s.team==='Meem'?'selected':''}>Team Meem</option>
               </select>
             </div>
           </div>
